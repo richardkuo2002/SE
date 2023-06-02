@@ -101,8 +101,19 @@ class CustomerProgress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     salesperson = models.ForeignKey(Salesperson, on_delete=models.CASCADE)
-    progress_status = models.CharField(max_length=100)
-    
+    progress_status = models.IntegerField(choices=(
+        (1, ''),
+        (2, ''),
+        (3, '完成')
+    ), default=1)
+
+    def get_customer_level(self):
+        return {
+            1: '',
+            2: '',
+            3: '完成'
+        }[self.progress_status]
+        
     class Meta:
         verbose_name = "客戶進度"
         verbose_name_plural = "客戶進度"
