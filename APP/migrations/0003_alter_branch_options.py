@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('SE_APP', '0002_alter_branch_options_alter_branch_branch_id_and_more'),
+        ('APP', '0002_alter_branch_options_alter_branch_branch_id_and_more'),
     ]
 
     operations = [

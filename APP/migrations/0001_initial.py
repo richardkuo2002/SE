@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('sale_id', models.IntegerField(primary_key=True, serialize=False)),
                 ('sale_date', models.DateField()),
                 ('sale_amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('branch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='SE_APP.branch')),
+                ('branch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='APP.branch')),
             ],
         ),
         migrations.CreateModel(
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('profit_id', models.IntegerField(primary_key=True, serialize=False)),
                 ('profit_amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('sale', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='SE_APP.sale')),
+                ('sale', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='APP.sale')),
             ],
         ),
         migrations.CreateModel(
@@ -56,9 +56,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('progress_id', models.IntegerField(primary_key=True, serialize=False)),
                 ('progress_status', models.CharField(max_length=100)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='SE_APP.customer')),
-                ('sale', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='SE_APP.sale')),
-                ('salesperson', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='SE_APP.salesperson')),
+                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='APP.customer')),
+                ('sale', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='APP.sale')),
+                ('salesperson', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='APP.salesperson')),
             ],
         ),
     ]
