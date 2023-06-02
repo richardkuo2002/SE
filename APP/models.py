@@ -18,6 +18,38 @@ class Branch(models.Model):
         verbose_name_plural = "分店"
 
 """
+2. 銷售(Sale): 代表按摩椅的銷售記錄。
+    銷售編號(Sale ID)
+    銷售日期(Sale Date)
+    銷售金額(Sale Amount)
+    分店編號(Branch ID)[外鍵，關聯至分店實體]
+"""
+class Sale(models.Model):
+    sale_id = models.AutoField(primary_key=True)
+    sale_date = models.DateField(db_index=True)
+    sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = "銷量"
+        verbose_name_plural = "銷量"
+
+"""
+3. 毛利(Profit): 代表按摩椅銷售的毛利情況。
+    毛利編號(Profit ID)
+    毛利金額(Profit Amount)
+    銷售編號(Sale ID)[外鍵，關聯至銷售實體]
+"""
+class Profit(models.Model):
+    profit_id = models.AutoField(primary_key=True)
+    profit_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = "毛利"
+        verbose_name_plural = "毛利"
+
+"""
 4. 業務員(Salesperson): 代表按摩椅企業的業務員。
     業務員編號(Salesperson ID)
     業務員姓名(Salesperson Name)
@@ -29,7 +61,6 @@ class Salesperson(models.Model):
     class Meta:
         verbose_name = "業務員"
         verbose_name_plural = "業務員"
-
 
 """
 5. 顧客(Customer): 代表按摩椅企業的客人。
@@ -58,40 +89,6 @@ class Customer(models.Model):
         verbose_name_plural = "顧客"
 
 """
-2. 銷售(Sale): 代表按摩椅的銷售記錄。
-    銷售編號(Sale ID)
-    銷售日期(Sale Date)
-    銷售金額(Sale Amount)
-    分店編號(Branch ID)[外鍵，關聯至分店實體]
-"""
-class Sale(models.Model):
-    sale_id = models.AutoField(primary_key=True)
-    sale_date = models.DateField(db_index=True)
-    sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
-    salesperson = models.ForeignKey(Salesperson, on_delete=models.CASCADE, null=True)
-    class Meta:
-        verbose_name = "銷量"
-        verbose_name_plural = "銷量"
-
-"""
-3. 毛利(Profit): 代表按摩椅銷售的毛利情況。
-    毛利編號(Profit ID)
-    毛利金額(Profit Amount)
-    銷售編號(Sale ID)[外鍵，關聯至銷售實體]
-"""
-class Profit(models.Model):
-    profit_id = models.AutoField(primary_key=True)
-    profit_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
-    
-    class Meta:
-        verbose_name = "毛利"
-        verbose_name_plural = "毛利"
-
-
-"""
 6. 客戶進度(Customer Progress): 代表客戶在銷售過程中的進度。
     進度編號(Progress ID)
     客人編號(Customer ID)[外鍵，關聯至客人實體]
@@ -102,6 +99,7 @@ class Profit(models.Model):
 class CustomerProgress(models.Model):
     progress_id = models.AutoField(primary_key=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True)
     salesperson = models.ForeignKey(Salesperson, on_delete=models.CASCADE)
     progress_status = models.IntegerField(choices=(
         (1, ''),

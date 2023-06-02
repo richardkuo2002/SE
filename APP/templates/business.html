@@ -551,7 +551,15 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  {% for salesperson in salesperson_list %}
+                    <tr>
+                      <th scope="row">{{salesperson.id}}</th>
+                      <td>{{salesperson.name}}</td>
+                      <td>{{salesperson.profit}}</td>
+                      
+                    </tr>
+                  {% endfor %}
+                  {% comment %} <tr>
                     <th scope="row">1</th>
                     <td>Brandon Jacob</td>
                     <td>10000</td>
@@ -580,7 +588,7 @@
                     <td>Raheem Lehner</td>
                     <td>874</td>
                     
-                  </tr>
+                  </tr> {% endcomment %}
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->

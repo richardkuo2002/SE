@@ -551,7 +551,19 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {% for customer in customers_list%}
                   <tr>
+                    <th scope="row">{{customer.id}}</th>
+                    <td>{{customer.name}}</td>
+                    <td>{%for name in customer.salesperson %}
+                          {{name}}
+                        {% endfor %}
+                    </td>
+                    <td><span class="badge bg-primary">{{customer.label}}</span></td>
+                    
+                  </tr>
+                  {% endfor %}
+                  {% comment %} <tr>
                     <th scope="row">1</th>
                     <td>Brandon Jacob</td>
                     <td>你媽</td>
@@ -585,7 +597,7 @@
                     <td>你媽</td>
                     <td><span class="badge bg-primary">臭甲</span><span class="badge bg-success">盤子</span></td>
                     
-                  </tr>
+                  </tr> {% endcomment %}
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->

@@ -25,7 +25,7 @@ def index(request):
     total_sales_cnt = sales_this_month.count()
     profit_this_month = Profit.objects.filter(sale__in = sales_this_month).aggregate(total = Sum('profit_amount'))
     total_profit = format(int(profit_this_month["total"]), ",d")
-    total_customers = Sale.objects.filter(sale_date__range=(start_date_this_month, end_date_this_month)).values('customer').annotate(total=Count('customer')).count()
+    total_customers = CustomerProgress.objects.filter(sale__in = sales_this_month).values('customer').annotate(total=Count('customer')).count()
     
     
     # 獲取上個月 
@@ -33,7 +33,7 @@ def index(request):
     sales_last_month_cnt = sales_this_month.count()
     profit_last_month = Profit.objects.filter(sale__in = sales_last_month).aggregate(total = Sum('profit_amount'))
     total_profit_last_month = int(profit_last_month["total"]) if profit_last_month["total"] != None else 0
-    customers_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month)).values('customer').annotate(total=Count('customer')).count()
+    customers_last_month = CustomerProgress.objects.filter(sale__in = sales_last_month).values('customer').annotate(total=Count('customer')).count()
     
     # 計算變化量
     sales_increase = total_sales_cnt - sales_last_month_cnt
@@ -53,9 +53,8 @@ def index(request):
     
     sales_by_month = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Count('sale_id'), month=Count('sale_date__month')).order_by('sale_date__month')
     monthly_profit = Profit.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_profit=Sum('profit_amount')).order_by('month')
-    monthly_customers = Sale.objects.annotate(month=ExtractMonth('sale_date')).values('month').annotate(total_customers=Count('customer', distinct=True)).order_by('month')
-    months_range = range(1, 13)  
-    print(monthly_customers)
+    monthly_customers = CustomerProgress.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_customers=Count('customer', distinct=True)).order_by('month')
+    months_range = range(1, 13)
     
     sales_dict = {}
     profit_dict = {}
@@ -85,9 +84,36 @@ def index(request):
     return render(request, 'index.html', locals())
 
 def business(request):
+    salesperson_sales = CustomerProgress.objects.values('salesperson').distinct()
+    saleperson_dict = {}
+    for sp in salesperson_sales:
+        salesperson_id = sp['salesperson']
+        sale_ids = CustomerProgress.objects.filter(salesperson_id=salesperson_id).values_list('sale', flat=True)
+        salesperson = Salesperson.objects.get(pk=salesperson_id)
+        profit_total = 0
+        for id in sale_ids:
+            tmp_profit = Profit.objects.filter(sale = id).aggregate(total = Sum('profit_amount'))
+            profit_total += tmp_profit['total']
+        saleperson_dict[salesperson.salesperson_name] = profit_total
+        saleperson_dict = dict(sorted(saleperson_dict.items(), key=lambda x: x[1]))
+    salesperson_list = []
+    for idx, (name, profit) in enumerate(saleperson_dict.items()):
+        salesperson_list.append({'id': idx + 1, 'name': name, 'profit': profit})
     
     return render(request, 'business.html', locals())
 
 def customer(request):
+    customers = Customer.objects.all()
+    customers_list = []
+    for customer in customers:
+        try:
+            salesperson_id_list = CustomerProgress.objects.filter(customer=customer.customer_id).values_list('salesperson', flat=True).distinct()
+        except:
+            salesperson_id_list = []
+        name_list = []
+        for salesperson_id in salesperson_id_list:
+            salesperson_name = Salesperson.objects.filter(salesperson_id = salesperson_id).values('salesperson_name')[0]
+            name_list.append(salesperson_name['salesperson_name'])
+        customers_list.append({'id': customer.customer_id, 'name': customer.customer_name, 'salesperson': name_list, 'label': customer.get_customer_level()})
     
     return render(request, 'customer.html', locals())
