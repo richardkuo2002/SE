@@ -746,7 +746,11 @@
                                 ],
                         }, {
                           name: 'Revenue',
-                          data: [11, 32, 45, 32, 34, 52, 41]
+                          data: [
+                                {% for value in profit_dict.values %}
+                                  {{ value }},
+                                {% endfor %}
+                                ]
                         }, {
                           name: 'Customers',
                           data: [15, 11, 32, 18, 9, 24, 11]
