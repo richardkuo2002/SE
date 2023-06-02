@@ -1,7 +1,6 @@
 from django.db import models
 
 # Create your models here.
-from django.db import models
 
 """
 1. 分店(Branch): 代表按摩椅企業的分店。
