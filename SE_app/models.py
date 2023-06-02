@@ -9,9 +9,11 @@ from django.db import models
     分店地址(Branch Address)
 """
 class Branch(models.Model):
-    branch_id = models.IntegerField(primary_key=True)
+    branch_id = models.AutoField(primary_key=True)
     branch_name = models.CharField(max_length=100)
     branch_address = models.CharField(max_length=100)
+    class Meta:
+        verbose_name = "分店"
 
 """
 2. 銷售(Sale): 代表按摩椅的銷售記錄。
@@ -22,7 +24,7 @@ class Branch(models.Model):
 """
 class Sale(models.Model):
     sale_id = models.IntegerField(primary_key=True)
-    sale_date = models.DateField()
+    sale_date = models.DateField(db_index=True)
     sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
 
