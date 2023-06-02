@@ -12,8 +12,10 @@ class Branch(models.Model):
     branch_id = models.AutoField(primary_key=True)
     branch_name = models.CharField(max_length=100)
     branch_address = models.CharField(max_length=100)
+    
     class Meta:
         verbose_name = "分店"
+        verbose_name_plural = "分店"
 
 """
 2. 銷售(Sale): 代表按摩椅的銷售記錄。
@@ -27,6 +29,10 @@ class Sale(models.Model):
     sale_date = models.DateField(db_index=True)
     sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = "銷量"
+        verbose_name_plural = "銷量"
 
 """
 3. 毛利(Profit): 代表按摩椅銷售的毛利情況。
@@ -38,6 +44,10 @@ class Profit(models.Model):
     profit_id = models.IntegerField(primary_key=True)
     profit_amount = models.DecimalField(max_digits=10, decimal_places=2)
     sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = "毛利"
+        verbose_name_plural = "毛利"
 
 """
 4. 業務員(Salesperson): 代表按摩椅企業的業務員。
@@ -47,15 +57,23 @@ class Profit(models.Model):
 class Salesperson(models.Model):
     salesperson_id = models.IntegerField(primary_key=True)
     salesperson_name = models.CharField(max_length=100)
+    
+    class Meta:
+        verbose_name = "業務員"
+        verbose_name_plural = "業務員"
 
 """
-5. 客人(Customer): 代表按摩椅企業的客人。
-    客人編號(Customer ID)
-    客人姓名(Customer Name)
+5. 顧客(Customer): 代表按摩椅企業的客人。
+    顧客編號(Customer ID)
+    顧客姓名(Customer Name)
 """
 class Customer(models.Model):
     customer_id = models.IntegerField(primary_key=True)
     customer_name = models.CharField(max_length=100)
+    
+    class Meta:
+        verbose_name = "顧客"
+        verbose_name_plural = "顧客"
 
 """
 6. 客戶進度(Customer Progress): 代表客戶在銷售過程中的進度。
@@ -71,3 +89,7 @@ class CustomerProgress(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     salesperson = models.ForeignKey(Salesperson, on_delete=models.CASCADE)
     progress_status = models.CharField(max_length=100)
+    
+    class Meta:
+        verbose_name = "客戶進度"
+        verbose_name_plural = "客戶進度"
