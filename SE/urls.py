@@ -20,5 +20,5 @@ from APP.views import index_customer_business
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index_customer_business/', index_customer_business, name='index customer business'),
+    path('index_customer_business/', index_customer_business),
 ]
