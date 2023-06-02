@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Branch, Sale, Profit, Salesperson, Customer, CustomerProgress
+from .models import *
 
 
 # Register your models here.
