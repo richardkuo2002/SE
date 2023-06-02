@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Sum, Count
+from django.db.models.functions import ExtractMonth
 from datetime import date, datetime, timedelta
 from .models import *
 import json
@@ -51,17 +52,27 @@ def index(request):
     customers_precentage_color = "text-success small pt-1 fw-bold" if customers_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
     
     sales_by_month = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Count('sale_id'), month=Count('sale_date__month')).order_by('sale_date__month')
+    monthly_profit = Profit.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_profit=Sum('profit_amount')).order_by('month')
     months_range = range(1, 13)  
-
+    print(monthly_profit)
+    
     sales_dict = {}
+    profit_dict = {}
     for month in months_range:
         sales_count = 0
+        profit_count = 0
         for sale in sales_by_month:
             if sale[0] == month:
                 sales_count = sale[1]
                 break
         sales_dict[month] = sales_count
-        print(f"Month {month}: {sales_count}")
+        # print(f"Month {month}: {sales_count}")
+        
+        for profit in monthly_profit:
+            if profit[0] == month:
+                profit_count = profit[1]
+                break
+        profit_dict[month] = profit_count
     return render(request, 'index.html', locals())
 
 def business(request):
