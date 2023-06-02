@@ -4,4 +4,4 @@ from django.shortcuts import render
 
 def index_customer_business(request):
     
-    return render(request, 'business.html', locals)
+    return render(request, 'business.html', locals())
