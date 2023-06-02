@@ -2,12 +2,14 @@ from django.shortcuts import render
 from django.db.models import Sum, Count
 from datetime import date, datetime, timedelta
 from .models import *
+import json
 
 # Create your views here.
 
 def index(request):
     # 獲取當前日期
     today = date.today()
+    current_year = datetime.now().year
     
     # 獲取本月的第一天和最後一天
     today = datetime.today().date()
@@ -32,7 +34,7 @@ def index(request):
     total_profit_last_month = int(profit_last_month["total"]) if profit_last_month["total"] != None else 0
     customers_last_month = CustomerProgress.objects.filter(sale__in=sales_last_month).values('customer').annotate(total=Count('customer')).count()
     
-    # 獲取差
+    # 計算變化量
     sales_increase = total_sales_cnt - sales_last_month_cnt
     sales_increase_percentage = int((sales_increase / sales_last_month_cnt) * 100) if sales_last_month_cnt != 0 else 0
     profit_increase = profit_this_month["total"] - total_profit_last_month
@@ -40,7 +42,7 @@ def index(request):
     customer_increase = total_customers - customers_last_month
     customers_increase_percentage = int((customer_increase / customers_last_month) * 100) if customers_last_month != 0 else 0
     
-    # 
+    # 字體改變
     sales_increase_percentage_str = "increase" if sales_increase_percentage >= 0 else "decrease"
     sales_precentage_color = "text-success small pt-1 fw-bold" if sales_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
     profit_increase_percentage_str = "increase" if profit_increase_percentage >= 0 else "decrease"
@@ -48,15 +50,18 @@ def index(request):
     customers_increase_percentage_str = "increase" if customers_increase_percentage >= 0 else "decrease"
     customers_precentage_color = "text-success small pt-1 fw-bold" if customers_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
     
-    sales_by_month = Sale.objects.values('sale_date__month').annotate(count=Count('sale_id'))
+    sales_by_month = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Count('sale_id'), month=Count('sale_date__month')).order_by('sale_date__month')
+    months_range = range(1, 13)  
 
-    for sale in sales_by_month:
-        month = sale['sale_date__month']
-        count = sale['count']
-        print(f"Month {month}: {count}")
-
-
-    
+    sales_dict = {}
+    for month in months_range:
+        sales_count = 0
+        for sale in sales_by_month:
+            if sale[0] == month:
+                sales_count = sale[1]
+                break
+        sales_dict[month] = sales_count
+        print(f"Month {month}: {sales_count}")
     return render(request, 'index.html', locals())
 
 def business(request):
