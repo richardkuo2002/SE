@@ -25,7 +25,7 @@ class Branch(models.Model):
     分店編號(Branch ID)[外鍵，關聯至分店實體]
 """
 class Sale(models.Model):
-    sale_id = models.IntegerField(primary_key=True)
+    sale_id = models.AutoField(primary_key=True)
     sale_date = models.DateField(db_index=True)
     sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
@@ -41,7 +41,7 @@ class Sale(models.Model):
     銷售編號(Sale ID)[外鍵，關聯至銷售實體]
 """
 class Profit(models.Model):
-    profit_id = models.IntegerField(primary_key=True)
+    profit_id = models.AutoField(primary_key=True)
     profit_amount = models.DecimalField(max_digits=10, decimal_places=2)
     sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
     
@@ -55,7 +55,7 @@ class Profit(models.Model):
     業務員姓名(Salesperson Name)
 """
 class Salesperson(models.Model):
-    salesperson_id = models.IntegerField(primary_key=True)
+    salesperson_id = models.AutoField(primary_key=True)
     salesperson_name = models.CharField(max_length=100)
     
     class Meta:
@@ -66,10 +66,23 @@ class Salesperson(models.Model):
 5. 顧客(Customer): 代表按摩椅企業的客人。
     顧客編號(Customer ID)
     顧客姓名(Customer Name)
+    顧客等級(Customer Level)
 """
 class Customer(models.Model):
-    customer_id = models.IntegerField(primary_key=True)
+    customer_id = models.AutoField(primary_key=True)
     customer_name = models.CharField(max_length=100)
+    customer_level = models.IntegerField(choices=(
+        (1, '普通會員'),
+        (2, '高级會員'),
+        (3, 'VIP會員')
+    ), default=1)
+
+    def get_customer_level(self):
+        return {
+            1: '普通會員',
+            2: '高级會員',
+            3: 'VIP會員'
+        }[self.customer_level]
     
     class Meta:
         verbose_name = "顧客"
@@ -84,7 +97,7 @@ class Customer(models.Model):
     進度狀態(Progress Status)
 """
 class CustomerProgress(models.Model):
-    progress_id = models.IntegerField(primary_key=True)
+    progress_id = models.AutoField(primary_key=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     salesperson = models.ForeignKey(Salesperson, on_delete=models.CASCADE)
