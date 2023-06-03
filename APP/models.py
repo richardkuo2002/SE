@@ -46,7 +46,7 @@ class Sale(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     
     def __str__(self):
-        return str(self.sale_id)
+        return str(self.sale_id) + "_" + str(self.sale_date) + "_" + str(self.sale_amount) + "_" + str(self.branch)
     
     class Meta:
         verbose_name = "銷量"
@@ -64,7 +64,7 @@ class Profit(models.Model):
     sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
     
     def __str__(self):
-        return str(self.profit_id)
+        return str(self.profit_id) + "_" + str(self.profit_amount) + "_" + str(self.sale)
     
     class Meta:
         verbose_name = "毛利"
@@ -142,7 +142,7 @@ class CustomerProgress(models.Model):
         }[self.progress_status]
     
     def __str__(self):
-        return str(self.progress_id)
+        return str(self.progress_id) + "_" + str(self.customer) + "_" + str(self.salesperson) + "_" + str(self.sale)
     
     class Meta:
         verbose_name = "客戶進度"

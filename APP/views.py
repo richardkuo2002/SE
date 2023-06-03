@@ -23,7 +23,7 @@ def index(request):
     # 獲取本月的銷售量
     sales_this_month = Sale.objects.filter(sale_date__range=(start_date_this_month, end_date_this_month))
     total_sales_cnt = sales_this_month.count()
-    profit_this_month = Profit.objects.filter(sale__in = sales_this_month).aggregate(total = Sum('profit_amount'))
+    profit_this_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month)).aggregate(total = Sum('sale_amount'))
     total_profit = format(int(profit_this_month["total"]), ",d")
     total_customers = CustomerProgress.objects.filter(sale__in = sales_this_month).values('customer').annotate(total=Count('customer')).count()
     
@@ -31,7 +31,7 @@ def index(request):
     # 獲取上個月 
     sales_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
     sales_last_month_cnt = sales_this_month.count()
-    profit_last_month = Profit.objects.filter(sale__in = sales_last_month).aggregate(total = Sum('profit_amount'))
+    profit_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month)).aggregate(total = Sum('sale_amount'))
     total_profit_last_month = int(profit_last_month["total"]) if profit_last_month["total"] != None else 0
     customers_last_month = CustomerProgress.objects.filter(sale__in = sales_last_month).values('customer').annotate(total=Count('customer')).count()
     
@@ -52,7 +52,7 @@ def index(request):
     customers_precentage_color = "text-success small pt-1 fw-bold" if customers_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
     
     sales_by_month = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Count('sale_id'), month=Count('sale_date__month')).order_by('sale_date__month')
-    monthly_profit = Profit.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_profit=Sum('profit_amount')).order_by('month')
+    monthly_profit = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Sum('sale_amount'), month=Count('sale_date__month')).order_by('sale_date__month')
     monthly_customers = CustomerProgress.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_customers=Count('customer', distinct=True)).order_by('month')
     months_range = range(1, 13)
     
@@ -71,8 +71,8 @@ def index(request):
         # print(f"Month {month}: {sales_count}")
         
         for profit in monthly_profit:
-            if profit['month'] == month:
-                profit_count = profit['total_profit']
+            if profit[0] == month:
+                profit_count = profit[1]
                 break
         profit_dict[month] = profit_count
         
@@ -84,20 +84,20 @@ def index(request):
     return render(request, 'index.html', locals())
 
 def business(request):
-    salesperson_sales = CustomerProgress.objects.values('salesperson').distinct()
+    salesperson_sales = Salesperson.objects.all()
     saleperson_dict = {}
     for sp in salesperson_sales:
-        salesperson_id = sp['salesperson']
+        salesperson_id = sp.salesperson_id
         sale_ids = CustomerProgress.objects.filter(salesperson_id=salesperson_id).values_list('sale', flat=True)
         salesperson = Salesperson.objects.get(pk=salesperson_id)
         profit_total = 0
         for id in sale_ids:
-            tmp_profit = Profit.objects.filter(sale = id).aggregate(total = Sum('profit_amount'))
+            tmp_profit = Sale.objects.filter(sale_id = id).aggregate(total = Sum('sale_amount'))
             profit_total += tmp_profit['total']
         saleperson_dict[salesperson.salesperson_name] = profit_total
         saleperson_dict = dict(sorted(saleperson_dict.items(), key=lambda x: x[1]))
     salesperson_list = []
-    for idx, (name, profit) in enumerate(saleperson_dict.items()):
+    for idx, (name, profit) in enumerate(reversed(saleperson_dict.items())):
         salesperson_list.append({'id': idx + 1, 'name': name, 'profit': profit})
     
     return render(request, 'business.html', locals())
@@ -177,3 +177,28 @@ def season_rank(request):
     for i in range(4):
         q_list.append({"q":i + 1, "value": q_table[i]})
     return render(request, 'season_rank.html', locals())
+
+def maolee(request):
+    
+    current_year = datetime.now().year
+    monthly_sale = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Sum('sale_amount'), month=Count('sale_date__month')).order_by('sale_date__month')
+    monthly_profit = Profit.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total=Sum('profit_amount', distinct=True)).order_by('month')
+    months_range = range(1, 13)
+    sales_dict = {}
+    profit_dict = {}
+    
+    for month in months_range:
+        for sale in monthly_sale:
+            sales_count = 0
+            if sale[0] == month:
+                sales_count = sale[1]
+                break
+        sales_dict[month] = sales_count
+        
+        for profit in monthly_profit:
+            profit_count = 0
+            if profit['month'] == month:
+                profit_count = profit['total']
+                break
+        profit_dict[month] = profit_count
+    return render(request, 'maolee.html', locals())

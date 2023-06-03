@@ -571,11 +571,19 @@
                     }, {
                       name: '收入',
                       type: 'bar',
-                      data: [76, 85, 101, 98, 87, 105, 91, 114, 94,87,66,71]
+                      data: [
+                            {% for value in sales_dict.values %}
+                              {{ value }},
+                            {% endfor %}
+                            ]
                     }, {
                       name: '毛利',
                       type: 'line',
-                      data: [32,30,44,42,26,47,28,54,28,43,11,30]
+                      data: [
+                            {% for value in profit_dict.values %}
+                              {{ value }},
+                            {% endfor %}
+                            ]
                     }],
                     chart: {
                       height: 350,
