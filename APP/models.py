@@ -12,6 +12,21 @@ class Branch(models.Model):
     branch_id = models.AutoField(primary_key=True)
     branch_name = models.CharField(max_length=100)
     branch_address = models.CharField(max_length=100)
+    local = models.IntegerField(choices=(
+        (1, '北區'),
+        (2, '中區'),
+        (3, '南區')
+    ), default=1)
+    
+    def get_local_name(self):
+        return {
+            1: '北區',
+            2: '中區',
+            3: '南區',
+        }[self.local]
+    
+    def __str__(self):
+        return self.branch_name
     
     class Meta:
         verbose_name = "分店"
@@ -30,6 +45,9 @@ class Sale(models.Model):
     sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     
+    def __str__(self):
+        return str(self.sale_id)
+    
     class Meta:
         verbose_name = "銷量"
         verbose_name_plural = "銷量"
@@ -45,6 +63,9 @@ class Profit(models.Model):
     profit_amount = models.DecimalField(max_digits=10, decimal_places=2)
     sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
     
+    def __str__(self):
+        return str(self.profit_id)
+    
     class Meta:
         verbose_name = "毛利"
         verbose_name_plural = "毛利"
@@ -57,6 +78,9 @@ class Profit(models.Model):
 class Salesperson(models.Model):
     salesperson_id = models.AutoField(primary_key=True)
     salesperson_name = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.salesperson_name
     
     class Meta:
         verbose_name = "業務員"
@@ -83,6 +107,9 @@ class Customer(models.Model):
             2: '高级會員',
             3: 'VIP會員'
         }[self.customer_level]
+    
+    def __str__(self):
+        return self.customer_name
     
     class Meta:
         verbose_name = "顧客"
@@ -113,7 +140,10 @@ class CustomerProgress(models.Model):
             2: '',
             3: '完成'
         }[self.progress_status]
-        
+    
+    def __str__(self):
+        return str(self.progress_id)
+    
     class Meta:
         verbose_name = "客戶進度"
         verbose_name_plural = "客戶進度"

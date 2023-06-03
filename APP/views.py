@@ -3,7 +3,7 @@ from django.db.models import Sum, Count
 from django.db.models.functions import ExtractMonth
 from datetime import date, datetime, timedelta
 from .models import *
-import json
+from django.db.models.functions import ExtractQuarter
 
 # Create your views here.
 
@@ -117,3 +117,63 @@ def customer(request):
         customers_list.append({'id': customer.customer_id, 'name': customer.customer_name, 'salesperson': name_list, 'label': customer.get_customer_level()})
     
     return render(request, 'customer.html', locals())
+
+def sale_rank(request):
+    today = datetime.today().date()
+    start_date_this_month = today.replace(day=1)
+    end_date_this_month = start_date_this_month.replace(day=1, month=start_date_this_month.month + 1)
+    start_date_this_year = today.replace(day=1)
+    end_date_this_year = start_date_this_year.replace(day=1, year=start_date_this_year.year + 1)
+    
+    branches = Branch.objects.all()
+    branche_dict = {}
+    branche_dict_year = {}
+    for branch in branches:
+        total_profit = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_month, end_date_this_month)).aggregate(total=Sum('sale_amount'))
+        branche_dict[branch.branch_name] = total_profit['total'] if total_profit['total'] != None else 0
+        total_profit = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_year, end_date_this_year)).aggregate(total=Sum('sale_amount'))
+        branche_dict_year[branch.branch_name] = total_profit['total'] if total_profit['total'] != None else 0
+    branche_dict = dict(sorted(branche_dict.items(), key=lambda x: x[1]))
+    branche_dict_year = dict(sorted(branche_dict_year.items(), key=lambda x: x[1]))
+    
+    branch_list = []
+    for idx, (key, value) in enumerate(reversed(branche_dict.items())):
+        if idx == 3:
+            break
+        branch_list.append({'name': key, 'value': value})
+    
+    
+    branch_list_year = []
+    for idx, (key, value) in enumerate(reversed(branche_dict_year.items())):
+        if idx == 3:
+            break
+        branch_list_year.append({'name': key, 'value': value})
+    return render(request, 'sale_rank.html', locals())
+
+def season_rank(request):
+    current_year = date.today().year
+    local_list = ['北區', '中區', '南區']
+    q_table = [[0] * 4 for _ in range(4)]
+    q_list = []
+    q_list_2 = [{'local': "中原店", 'value': [0, 0, 0, 0]}]
+    for idx in range(3):
+        branches = Branch.objects.filter(local = idx + 1)
+        loacl_total = [0 for _ in range(4)]
+        for branch in branches:
+            # 計算每季銷售額
+            sales_by_quarter = Sale.objects.filter(sale_date__year=current_year, branch = branch.branch_id).annotate(
+                quarter=ExtractQuarter('sale_date')
+            ).values('quarter').annotate(sales_amount=Sum('sale_amount')).order_by('quarter')
+
+            for i in range(4):
+                sales_amount = 0
+                for entry in sales_by_quarter:
+                    if entry['quarter'] == i + 1:
+                        sales_amount = entry['sales_amount']
+                        break
+                loacl_total[i] += sales_amount
+                q_table[i][idx + 1] += sales_amount
+        q_list_2.append({'local': local_list[idx], 'value': loacl_total})
+    for i in range(4):
+        q_list.append({"q":i + 1, "value": q_table[i]})
+    return render(request, 'season_rank.html', locals())
