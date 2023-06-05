@@ -26,5 +26,11 @@ urlpatterns = [
     path('customer/', customer),
     path('sale_rank/', sale_rank),
     path('season_rank/', season_rank),
+    path('manyeedo/', manyeedo),
     path('maolee/', maolee),
+    path('month_up/', month_up),
+    path('year_up/', year_up),
+    path('yagee/', yagee),
+    path('yagee_all/', yagee_all),
+    path('stock/', stock),
 ]

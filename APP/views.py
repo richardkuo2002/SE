@@ -202,3 +202,22 @@ def maolee(request):
                 break
         profit_dict[month] = profit_count
     return render(request, 'maolee.html', locals())
+
+def manyeedo(request):
+    return render(request, 'manyeedo.html', locals())
+
+    
+def month_up(request):
+    return render(request, 'month_up.html', locals())
+
+def year_up(request):
+    return render(request, 'year_up.html', locals())
+
+def yagee(request):
+    return render(request, 'yagee.html', locals())
+
+def yagee_all(request):
+    return render(request, 'yagee_all.html', locals())
+
+def stock(request):
+    return render(request, 'stock.html', locals())
