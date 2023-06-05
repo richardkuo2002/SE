@@ -33,7 +33,7 @@ def index(request):
     
     # 獲取上個月 
     sales_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
-    sales_last_month_cnt = sales_this_month.count()
+    sales_last_month_cnt = sales_last_month.count()
     profit_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
     total_profit_last_month_int = 0
     for sale in profit_last_month:
@@ -57,37 +57,38 @@ def index(request):
     customers_increase_percentage_str = "increase" if customers_increase_percentage >= 0 else "decrease"
     customers_precentage_color = "text-success small pt-1 fw-bold" if customers_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
     
-    sales_by_month = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Count('sale_id'), month=Count('sale_date__month')).order_by('sale_date__month')
-    monthly_profit = Sale.objects.filter(sale_date__year=current_year)
+    sales_by_month = Sale.objects.filter(sale_date__year=current_year)
     monthly_customers = CustomerProgress.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_customers=Count('customer', distinct=True)).order_by('month')
     months_range = range(1, 13)
     
     sales_dict = {}
     profit_dict = {}
     customer_dict = {}
+    
+    for month in months_range:
+        sales_dict[month] = 0
+        profit_dict[month] = 0
+        customer_dict[month] = 0
+    
     for month in months_range:
         sales_count = 0
         profit_count = 0
         customer_count = 0
         for sale in sales_by_month:
-            if sale[0] == month:
-                sales_count = sale[1]
-                break
-        sales_dict[month] = sales_count
-        # print(f"Month {month}: {sales_count}")
+            if sale.sale_date.month == month:
+                sales_count = profit.sale_volume
+                sales_dict[month] += sales_count
         
-        for profit in monthly_profit:
+        for profit in sales_by_month:
             if profit.sale_date.month == month:
-                
                 profit_count = profit.inventory.Inventory_unit_price * profit.sale_volume
-                break
-        profit_dict[month] = profit_count
+                profit_dict[month] += profit_count
+        # print(f"Month {month}: {profit_count}")
         
         for customer in monthly_customers:
             if customer['month'] == month:
                 customer_count = customer['total_customers']
-                break
-        customer_dict[month] = customer_count
+        customer_dict[month] += customer_count
     return render(request, 'index.html', locals())
 
 def business(request):
