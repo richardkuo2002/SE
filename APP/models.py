@@ -32,6 +32,22 @@ class Branch(models.Model):
         verbose_name = "分店"
         verbose_name_plural = "分店"
 
+class Inventory(models.Model):
+    Inventory_id = models.AutoField(primary_key=True)
+    Inventory_name = models.CharField(max_length=100)
+    Inventory_quantity = models.IntegerField(default=0)
+    Inventory_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    Inventory_unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def __str__(self):
+        return str(self.Inventory_id) + "_" + self.Inventory_name
+    
+    class Meta:
+        verbose_name = "庫存"
+        verbose_name_plural = "庫存"
+        
+
+
 """
 2. 銷售(Sale): 代表按摩椅的銷售記錄。
     銷售編號(Sale ID)
@@ -42,33 +58,16 @@ class Branch(models.Model):
 class Sale(models.Model):
     sale_id = models.AutoField(primary_key=True)
     sale_date = models.DateField(db_index=True)
-    sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_volume = models.IntegerField(default=1)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, default=1)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     
     def __str__(self):
-        return str(self.sale_id) + "_" + str(self.sale_date) + "_" + str(self.sale_amount) + "_" + str(self.branch)
+        return str(self.sale_id) + "_" + str(self.sale_date) + "_" + str(self.branch)
     
     class Meta:
         verbose_name = "銷量"
         verbose_name_plural = "銷量"
-
-"""
-3. 毛利(Profit): 代表按摩椅銷售的毛利情況。
-    毛利編號(Profit ID)
-    毛利金額(Profit Amount)
-    銷售編號(Sale ID)[外鍵，關聯至銷售實體]
-"""
-class Profit(models.Model):
-    profit_id = models.AutoField(primary_key=True)
-    profit_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    sale = models.OneToOneField(Sale, on_delete=models.CASCADE)
-    
-    def __str__(self):
-        return str(self.profit_id) + "_" + str(self.profit_amount) + "_" + str(self.sale)
-    
-    class Meta:
-        verbose_name = "毛利"
-        verbose_name_plural = "毛利"
 
 """
 4. 業務員(Salesperson): 代表按摩椅企業的業務員。
@@ -147,3 +146,4 @@ class CustomerProgress(models.Model):
     class Meta:
         verbose_name = "客戶進度"
         verbose_name_plural = "客戶進度"
+

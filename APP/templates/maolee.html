@@ -405,7 +405,11 @@
                     series: [{
                       name: '成本',
                       type: 'bar',
-                      data: [44, 55, 57, 56, 61, 58, 63, 60, 66,44,55,41]
+                      data: [
+                            {% for value in cost_dict.values %}
+                              {{ value }},
+                            {% endfor %}
+                            ]
                     }, {
                       name: '收入',
                       type: 'bar',

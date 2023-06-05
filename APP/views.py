@@ -23,23 +23,29 @@ def index(request):
     # 獲取本月的銷售量
     sales_this_month = Sale.objects.filter(sale_date__range=(start_date_this_month, end_date_this_month))
     total_sales_cnt = sales_this_month.count()
-    profit_this_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month)).aggregate(total = Sum('sale_amount'))
-    total_profit = format(int(profit_this_month["total"]), ",d")
+    profit_this_month = Sale.objects.filter(sale_date__range=(start_date_this_month, end_date_this_month))
+    total_profit_int = 0
+    for sale in profit_this_month:
+        total_profit_int += sale.inventory.Inventory_unit_price * sale.sale_volume
+    total_profit = format(int(total_profit_int), ",d")
     total_customers = CustomerProgress.objects.filter(sale__in = sales_this_month).values('customer').annotate(total=Count('customer')).count()
     
     
     # 獲取上個月 
     sales_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
     sales_last_month_cnt = sales_this_month.count()
-    profit_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month)).aggregate(total = Sum('sale_amount'))
-    total_profit_last_month = int(profit_last_month["total"]) if profit_last_month["total"] != None else 0
+    profit_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
+    total_profit_last_month_int = 0
+    for sale in profit_last_month:
+        total_profit_last_month_int += sale.inventory.Inventory_unit_price * sale.sale_volume
+    total_profit_last_month = format(int(total_profit_last_month_int), ",d")
     customers_last_month = CustomerProgress.objects.filter(sale__in = sales_last_month).values('customer').annotate(total=Count('customer')).count()
     
     # 計算變化量
     sales_increase = total_sales_cnt - sales_last_month_cnt
     sales_increase_percentage = int((sales_increase / sales_last_month_cnt) * 100) if sales_last_month_cnt != 0 else 0
-    profit_increase = profit_this_month["total"] - total_profit_last_month
-    profit_increase_percentage = int((profit_increase / total_profit_last_month) * 100) if total_profit_last_month != 0 else 0
+    profit_increase = total_profit_int - total_profit_last_month_int
+    profit_increase_percentage = int((profit_increase / total_profit_last_month_int) * 100) if total_profit_last_month_int != 0 else 0
     customer_increase = total_customers - customers_last_month
     customers_increase_percentage = int((customer_increase / customers_last_month) * 100) if customers_last_month != 0 else 0
     
@@ -52,7 +58,7 @@ def index(request):
     customers_precentage_color = "text-success small pt-1 fw-bold" if customers_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
     
     sales_by_month = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Count('sale_id'), month=Count('sale_date__month')).order_by('sale_date__month')
-    monthly_profit = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Sum('sale_amount'), month=Count('sale_date__month')).order_by('sale_date__month')
+    monthly_profit = Sale.objects.filter(sale_date__year=current_year)
     monthly_customers = CustomerProgress.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_customers=Count('customer', distinct=True)).order_by('month')
     months_range = range(1, 13)
     
@@ -71,8 +77,9 @@ def index(request):
         # print(f"Month {month}: {sales_count}")
         
         for profit in monthly_profit:
-            if profit[0] == month:
-                profit_count = profit[1]
+            if profit.sale_date.month == month:
+                
+                profit_count = profit.inventory.Inventory_unit_price * profit.sale_volume
                 break
         profit_dict[month] = profit_count
         
@@ -92,8 +99,9 @@ def business(request):
         salesperson = Salesperson.objects.get(pk=salesperson_id)
         profit_total = 0
         for id in sale_ids:
-            tmp_profit = Sale.objects.filter(sale_id = id).aggregate(total = Sum('sale_amount'))
-            profit_total += tmp_profit['total']
+            sales = Sale.objects.filter(sale_id = id)
+            for sale in sales:
+                profit_total += sale.inventory.Inventory_unit_price * sale.sale_volume
         saleperson_dict[salesperson.salesperson_name] = profit_total
         saleperson_dict = dict(sorted(saleperson_dict.items(), key=lambda x: x[1]))
     salesperson_list = []
@@ -129,10 +137,17 @@ def sale_rank(request):
     branche_dict = {}
     branche_dict_year = {}
     for branch in branches:
-        total_profit = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_month, end_date_this_month)).aggregate(total=Sum('sale_amount'))
-        branche_dict[branch.branch_name] = total_profit['total'] if total_profit['total'] != None else 0
-        total_profit = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_year, end_date_this_year)).aggregate(total=Sum('sale_amount'))
-        branche_dict_year[branch.branch_name] = total_profit['total'] if total_profit['total'] != None else 0
+        sale_list_month = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_month, end_date_this_month))
+        total_sale_month = 0
+        for sale in sale_list_month:
+            total_sale_month += sale.inventory.Inventory_unit_price * sale.sale_volume
+        branche_dict[branch.branch_name] = total_sale_month
+        
+        sale_list_year = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_year, end_date_this_year))
+        total_sale_year = 0
+        for sale in sale_list_year:
+            total_sale_year += sale.inventory.Inventory_unit_price * sale.sale_volume
+        branche_dict_year[branch.branch_name] = total_sale_year
     branche_dict = dict(sorted(branche_dict.items(), key=lambda x: x[1]))
     branche_dict_year = dict(sorted(branche_dict_year.items(), key=lambda x: x[1]))
     
@@ -163,13 +178,12 @@ def season_rank(request):
             # 計算每季銷售額
             sales_by_quarter = Sale.objects.filter(sale_date__year=current_year, branch = branch.branch_id).annotate(
                 quarter=ExtractQuarter('sale_date')
-            ).values('quarter').annotate(sales_amount=Sum('sale_amount')).order_by('quarter')
-
+            )
             for i in range(4):
                 sales_amount = 0
                 for entry in sales_by_quarter:
-                    if entry['quarter'] == i + 1:
-                        sales_amount = entry['sales_amount']
+                    if entry.quarter == i + 1:
+                        sales_amount = entry.inventory.Inventory_unit_price * entry.sale_volume
                         break
                 loacl_total[i] += sales_amount
                 q_table[i][idx + 1] += sales_amount
@@ -181,26 +195,35 @@ def season_rank(request):
 def maolee(request):
     
     current_year = datetime.now().year
-    monthly_sale = Sale.objects.filter(sale_date__year=current_year).values_list('sale_date__month').annotate(count=Sum('sale_amount'), month=Count('sale_date__month')).order_by('sale_date__month')
-    monthly_profit = Profit.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total=Sum('profit_amount', distinct=True)).order_by('month')
+    monthly_sale = Sale.objects.filter(sale_date__year=current_year)
     months_range = range(1, 13)
     sales_dict = {}
     profit_dict = {}
+    cost_dict = {}
     
     for month in months_range:
         for sale in monthly_sale:
             sales_count = 0
-            if sale[0] == month:
-                sales_count = sale[1]
+            if sale.sale_date.month == month:
+                sales_count = sale.inventory.Inventory_unit_price * sale.sale_volume
                 break
         sales_dict[month] = sales_count
         
-        for profit in monthly_profit:
+        for cost in monthly_sale:
+            cost_count = 0
+            if cost.sale_date.month == month:
+                cost_count = sale.inventory.Inventory_cost * sale.sale_volume
+                break
+        cost_dict[month] = cost_count
+        
+        
+        for profit in monthly_sale:
             profit_count = 0
-            if profit['month'] == month:
-                profit_count = profit['total']
+            if profit.sale_date.month == month:
+                profit_count = (sale.inventory.Inventory_unit_price - sale.inventory.Inventory_cost) * sale.sale_volume
                 break
         profit_dict[month] = profit_count
+        
     return render(request, 'maolee.html', locals())
 
 def manyeedo(request):
