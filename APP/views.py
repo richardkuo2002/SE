@@ -5,6 +5,11 @@ from datetime import date, datetime, timedelta
 from .models import *
 from django.db.models.functions import ExtractQuarter
 
+import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
+
 # Create your views here.
 
 def index(request):
@@ -133,7 +138,6 @@ def sale_rank(request):
     end_date_this_month = start_date_this_month.replace(day=1, month=start_date_this_month.month + 1)
     start_date_this_year = today.replace(day=1)
     end_date_this_year = start_date_this_year.replace(day=1, year=start_date_this_year.year + 1)
-    
     branches = Branch.objects.all()
     branche_dict = {}
     branche_dict_year = {}
@@ -144,14 +148,14 @@ def sale_rank(request):
             total_sale_month += sale.inventory.Inventory_unit_price * sale.sale_volume
         branche_dict[branch.branch_name] = total_sale_month
         
-        sale_list_year = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_year, end_date_this_year))
+        sale_list_year = Sale.objects.filter(branch = branch.branch_id)
         total_sale_year = 0
         for sale in sale_list_year:
-            total_sale_year += sale.inventory.Inventory_unit_price * sale.sale_volume
+            if sale.sale_date.year == today.year:
+                total_sale_year += sale.inventory.Inventory_unit_price * sale.sale_volume
         branche_dict_year[branch.branch_name] = total_sale_year
     branche_dict = dict(sorted(branche_dict.items(), key=lambda x: x[1]))
     branche_dict_year = dict(sorted(branche_dict_year.items(), key=lambda x: x[1]))
-    
     branch_list = []
     for idx, (key, value) in enumerate(reversed(branche_dict.items())):
         if idx == 3:
@@ -164,6 +168,7 @@ def sale_rank(request):
         if idx == 3:
             break
         branch_list_year.append({'name': key, 'value': value})
+    print(branch_list_year)
     return render(request, 'sale_rank.html', locals())
 
 def season_rank(request):
@@ -232,6 +237,24 @@ def manyeedo(request):
 
     
 def month_up(request):
+    now_month = datetime.today().date().month
+    months_range = [ i + 1 for i in range(now_month)]
+    sales = Sale.objects.all()
+    
+    monthly_sales = [0 for _ in range(now_month)]
+    for sale in sales:
+        for month in months_range:
+            if sale.sale_date.month == month + 1:
+                monthly_sales[month] += sale.inventory.Inventory_unit_price * sale.sale_volume
+                break
+    
+    monthly_sales_2d = [ [i] for i in monthly_sales]
+    months_range = [ [i + 1] for i in range(now_month)]
+    x, y = np.array(months_range), np.array(monthly_sales_2d)
+    regressor = make_pipeline(PolynomialFeatures(3), LinearRegression())
+    w = regressor.fit(x,y)
+    predict = [[i + 1] for i in range(now_month, 12)]
+    result = w.predict(predict)
     return render(request, 'month_up.html', locals())
 
 def year_up(request):

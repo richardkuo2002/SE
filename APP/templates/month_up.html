@@ -396,7 +396,16 @@
                       {
                         name: "營收",
                         type: "column",
-                        data: [50, 30, 45, 60, 55, 75, 80, 90, 70, 85, 60, 50],
+                        data: [
+                              {% for value in monthly_sales%}
+                                {{ value}},
+                              {% endfor %}
+                              {% for values in result %}
+                                {% for value in values %}
+                                  {{value}},
+                                {% endfor %}
+                              {% endfor %}
+                              ],
                       },
                       {
                         name: "月增長率",

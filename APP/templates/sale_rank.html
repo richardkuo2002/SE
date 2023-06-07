@@ -463,14 +463,14 @@
                         type: 'bar',
                         data: {
                           labels: [
-                                  {% for branch in branch_list %}
+                                  {% for branch in branch_list_year %}
                                     '{{ branch.name }}',
                                   {% endfor %}
                                   ],
                           datasets: [{
                             label: 'Bar Chart',
                             data: [
-                                  {% for branch in branch_list %}
+                                  {% for branch in branch_list_year %}
                                     {{ branch.value }},
                                   {% endfor %}
                                   ],
