@@ -5,9 +5,10 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Tables / Data - NiceAdmin Bootstrap Template</title>
+  <title>Dashboard - NiceAdmin Bootstrap Template</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
+
   {% load static %}
   <!-- Favicons -->
   <link href="{% static '/img/favicon.png' %}" rel="icon">
@@ -30,7 +31,6 @@
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
 
-
   <!-- =======================================================
   * Template Name: NiceAdmin
   * Updated: Mar 09 2023 with Bootstrap v5.2.3
@@ -47,7 +47,7 @@
 
     <div class="d-flex align-items-center justify-content-between">
       <a href="../index" class="logo d-flex align-items-center">
-        <img src=" {% static '/img/logo.png' %}" alt="">
+        <img src="assets/img/logo.png" alt="">
         <span class="d-none d-lg-block">劉阿豪儀表板系統</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -162,7 +162,7 @@
 
             <li class="message-item">
               <a href="#">
-                <img src="{% static 'img/messages-1.jpg' %}" alt="" class="rounded-circle">
+                <img src="assets/img/messages-1.jpg" alt="" class="rounded-circle">
                 <div>
                   <h4>Maria Hudson</h4>
                   <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
@@ -176,7 +176,7 @@
 
             <li class="message-item">
               <a href="#">
-                <img src="{% static 'img/messages-2.jpg' %}" alt="" class="rounded-circle">
+                <img src="assets/img/messages-2.jpg" alt="" class="rounded-circle">
                 <div>
                   <h4>Anna Nelson</h4>
                   <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
@@ -190,7 +190,7 @@
 
             <li class="message-item">
               <a href="#">
-                <img src="{% static 'img/messages-3.jpg' %}" alt="" class="rounded-circle">
+                <img src="assets/img/messages-3.jpg" alt="" class="rounded-circle">
                 <div>
                   <h4>David Muldon</h4>
                   <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
@@ -272,6 +272,7 @@
   </header><!-- End Header -->
 
   <!-- ======= Sidebar ======= -->
+  <!-- ======= Sidebar ======= -->
   <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
       <li class="nav-item">
@@ -282,7 +283,7 @@
       </li><!-- End Dashboard Nav -->
       
       <li class="nav-item">
-        <a class="nav-link" href="../customer">
+        <a class="nav-link collapsed" href="../customer">
           <i class="bi bi-grid"></i>
           <span>顧客狀況</span>
         </a>
@@ -349,8 +350,10 @@
           <span>庫存</span>
         </a>
       </li>
-<li class="nav-item">
-        <a class="nav-link collapsed" href="../anmoyee">
+      
+
+      <li class="nav-item">
+        <a class="nav-link" href="../anmoyee">
           <i class="bi bi-grid"></i>
           <span>按摩椅</span>
         </a>
@@ -361,90 +364,230 @@
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>顧客狀況</h1>
+      <h1>按摩椅</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="../index">Home</a></li>
-          <li class="breadcrumb-item active">顧客狀況</li>
+          <li class="breadcrumb-item active">按摩椅</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
 
+    <section class="section dashboard">
+      
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">按摩椅滿意度</h5>
+          
+              <!-- Doughnut Chart -->
+              <canvas id="doughnutChart" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 672px;" width="1345" height="800"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#doughnutChart'), {
+                    type: 'doughnut',
+                    data: {
+                      labels: [
+                        '滿意',
+                        '不滿意'
+                      ],
+                      datasets: [{
+                        label: '按摩椅滿意度',
+                        data: [70, 30], // 修改數據為滿意度和不滿意度的比例
+                        backgroundColor: [
+                          'rgb(75, 192, 192)',
+                          'rgb(255, 99, 132)'
+                        ],
+                        hoverOffset: 4
+                      }]
+                    }
+                  });
+                });
+              </script>
+              <!-- End Doughnut Chart -->
+          
+            </div>
+          </div>
+          
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">轉換率</h5>
+
+              <!-- Doughnut Chart -->
+              <canvas id="doughnutChart2" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 672px;" width="1345" height="800"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#doughnutChart2'), {
+                    type: 'doughnut',
+                    data: {
+                      labels: [
+                        '滿意',
+                        '不滿意'
+                      ],
+                      datasets: [{
+                        label: '按摩椅滿意度',
+                        data: [70, 30], // 修改數據為滿意度和不滿意度的比例
+                        backgroundColor: [
+                          'rgb(75, 192, 192)',
+                          'rgb(255, 99, 132)'
+                        ],
+                        hoverOffset: 4
+                      }]
+                    }
+                  });
+                });
+              </script>
+              <!-- End Doughnut CHart -->
+
+            </div>
+          </div>
+        </div>
+    </div>
+    </section>
     <section class="section">
       <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-3">
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Customer Rank <span>| 依據購買可能性..?或是其他的</span></h5>
-              <p>查顧客資料</p>
+              <h5 class="card-title">各按摩椅試坐次數</h5>
+
+              <!-- Default Accordion -->
+              <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                      按摩椅A試坐次數
+                    </button>
+                  </h2>
+                  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+                    <div class="accordion-body">
+                      <strong>99次</strong> 
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      按摩椅B試坐次數
+                    </button>
+                  </h2>
+                  <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <strong>70次</strong> 
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      按摩椅C試坐次數
+                    </button>
+                  </h2>
+                  <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <strong>12次</strong> 
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Default Accordion Example -->
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">保固滿意度</h5>
+        
+              <!-- Pie Chart -->
+              <canvas id="pieChart" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 425px;" width="851" height="800"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#pieChart'), {
+                    type: 'pie',
+                    data: {
+                      labels: [
+                        '滿意',
+                        '不滿意'
+                      ],
+                      datasets: [{
+                        label: '保固滿意度',
+                        data: [70, 30], // 修改數據為滿意度和不滿意度的比例
+                        backgroundColor: [
+                          'rgb(75, 192, 192)',
+                          'rgb(255, 99, 132)'
+                        ],
+                        hoverOffset: 4
+                      }]
+                    }
+                  });
+                });
+              </script>
+              <!-- End Pie Chart -->
+        
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">本日(6/17)預約試坐</h5>
 
               <!-- Table with stripped rows -->
-              <table class="table datatable">
+              <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">顧客</th>
-                    <th scope="col">業務員</th>
-                    <th scope="col">標籤</th>
+                    <th scope="col">編號</th>
+                    <th scope="col">會員編號</th>
+                    <th scope="col">時間</th>
+                    <th scope="col">業務</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for customer in customers_list%}
                   <tr>
-                    <th scope="row">{{customer.id}}</th>
-                    <td>{{customer.name}}</td>
-                    <td>{%for name in customer.salesperson %}
-                          {{name}}
-                        {% endfor %}
-                    </td>
-                    <td><span class="badge bg-primary">{{customer.label}}</span></td>
-                    
-                  </tr>
-                  {% endfor %}
-                  {% comment %} <tr>
                     <th scope="row">1</th>
-                    <td>Brandon Jacob</td>
+                    <td>C01</td>
+                    <td>13:35</td>
                     <td>你媽</td>
-                    <td><span class="badge bg-primary">臭甲</span><span class="badge bg-success">盤子</span></td>
-                    
                   </tr>
                   <tr>
                     <th scope="row">2</th>
-                    <td>Bridie Kessler</td>
+                    <td>C19</td>
+                    <td>15:29</td>
                     <td>你媽</td>
-                    <td><span class="badge bg-primary">臭甲</span><span class="badge bg-success">盤子</span></td>
-                    
                   </tr>
                   <tr>
                     <th scope="row">3</th>
-                    <td>Ashleigh Langosh</td>
+                    <td>C41</td>
+                    <td>19:31</td>
                     <td>你媽</td>
-                    <td><span class="badge bg-primary">臭甲</span><span class="badge bg-success">盤子</span></td>
-                    
                   </tr>
                   <tr>
                     <th scope="row">4</th>
-                    <td>Angus Grady</td>
+                    <td>C53</td>
+                    <td>20:50</td>
                     <td>你媽</td>
-                    <td><span class="badge bg-primary">臭甲</span><span class="badge bg-success">盤子</span></td>
-                    
                   </tr>
                   <tr>
                     <th scope="row">5</th>
-                    <td>Raheem Lehner</td>
+                    <td>C39</td>
+                    <td>21:04</td>
                     <td>你媽</td>
-                    <td><span class="badge bg-primary">臭甲</span><span class="badge bg-success">盤子</span></td>
-                    
-                  </tr> {% endcomment %}
+                  </tr>
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
 
             </div>
           </div>
-
         </div>
+        
       </div>
     </section>
 

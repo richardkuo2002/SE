@@ -33,4 +33,5 @@ urlpatterns = [
     path('yagee/', yagee),
     path('yagee_all/', yagee_all),
     path('stock/', stock),
+    path('anmoyee/',anmoyee),
 ]

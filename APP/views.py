@@ -268,3 +268,6 @@ def yagee_all(request):
 
 def stock(request):
     return render(request, 'stock.html', locals())
+
+def anmoyee(request):
+    return render(request, 'anmoyee.html', locals())
