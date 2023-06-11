@@ -147,3 +147,26 @@ class CustomerProgress(models.Model):
         verbose_name = "客戶進度"
         verbose_name_plural = "客戶進度"
 
+class Purchases(models.Model):
+    ID = models.AutoField(primary_key=True)
+    Date = models.DateField(db_index=True)
+    Quantity = models.IntegerField(default=1)
+    Inventory_id = models.ForeignKey(Inventory, on_delete=models.CASCADE, default=1)
+    def __str__(self):
+        return str(self.Date) + "_" + str(self.Inventory_id) + "_" + str(self.Quantity)
+    class Meta:
+        verbose_name = "進貨"
+        verbose_name_plural = "進貨"
+        
+
+class Public_Massage_chair(models.Model):
+    Inventory_id = models.ForeignKey(Inventory, on_delete=models.CASCADE, default=1)
+    Date = models.DateField(db_index=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return str(self.Date) + "_" + str(self.Inventory_id) + "_" + str(self.customer)
+    
+    class Meta:
+        verbose_name = "公共按摩椅體驗"
+        verbose_name_plural = "公共按摩椅體驗"

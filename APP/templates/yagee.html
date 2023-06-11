@@ -410,98 +410,22 @@
                   <thead>
                     <tr>
                       <th scope="col">業務</th>
-                      <th scope="col">許書瑜</th>
-                      <th scope="col">黃政維</th>
-                      <th scope="col">郭睿桓</th>
-                      <th scope="col">段浩恩</th>
+                      {% for saler in saler_cnt %}
+                      <th scope="col">{{saler.name}}</th>
+                      {% endfor %}
                     </tr>
                   </thead>
                   <tbody>
+                    {% for month in month_list %}
                     <tr>
-                      <th>1月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <th>{{ month.month }}月</th>
+                      {% for data in month.data %}
+                      <td>{{ data }}</td>
+                      {% endfor %}
                     </tr>
-                    <tr>
-                      <th>2月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>3月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>4月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>5月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>6月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>7月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>8月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>9月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>10月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>11月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <th>12月</th>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
+                    {% endfor %}
+                    
+                    {% comment %} <tr>
                       <th>總計</th>
                       <td></td>
                       <td></td>
@@ -520,7 +444,7 @@
                       <td></td>
                       <td></td>
                       <td></td>
-                      <td></td>
+                      <td></td> {% endcomment %}
                     </tr>
                   </tbody>
                 </table>
@@ -542,7 +466,11 @@
               <script>
                 document.addEventListener("DOMContentLoaded", () => {
                   new ApexCharts(document.querySelector("#donutChart"), {
-                    series: [44, 13, 55, 43],
+                    series: [
+                            {% for saler in saler_cnt %}
+                              {{ saler.data}},
+                            {% endfor %}
+                            ],
                     chart: {
                       height: 350,
                       type: 'donut',
@@ -550,7 +478,11 @@
                         show: true
                       }
                     },
-                    labels: ['許書瑜', '黃政維', '郭睿桓', '段浩恩'],
+                    labels: [
+                            {% for saler in saler_cnt %}
+                              '{{ saler.name}}',
+                            {% endfor %}
+                            ],
                   }).render();
                 });
               </script>
@@ -586,19 +518,18 @@
               <script>
                 document.addEventListener("DOMContentLoaded", () => {
                   new ApexCharts(document.querySelector("#lineChart"), {
-                    series: [{
-                      name: '許書瑜',
-                      data: [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000]
-                    }, {
-                      name: '黃政維',
-                      data: [1500, 2500, 3500, 4500, 5500, 6500, 7500, 8500, 9500, 10500, 11500, 12500]
-                    }, {
-                      name: '郭睿桓',
-                      data: [800, 1800, 2800, 3800, 4800, 5800, 6800, 7800, 8800, 9800, 10800, 11800]
-                    }, {
-                      name: '段浩恩',
-                      data: [1200, 2200, 3200, 4200, 5200, 6200, 7200, 8200, 9200, 10200, 11200, 12200]
-                    }],
+                    series: [
+                    {% for saler in saler_list %}
+                    {
+                      name: '{{ saler.name }}',
+                      data: [
+                            {% for data in saler.data %}
+                              {{ data }},
+                            {% endfor %}
+                            ]
+                    },
+                    {% endfor %}
+                    ],
                     chart: {
                       height: 350,
                       type: 'line',
@@ -630,7 +561,7 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Bar Chart</h5>
+              <h5 class="card-title">年度業績</h5>
         
               <!-- Bar Chart -->
               <canvas id="barChart" style="max-height: 400px;"></canvas>
@@ -639,11 +570,19 @@
                   new Chart(document.querySelector('#barChart'), {
                     type: 'bar',
                     data: {
-                      labels: ['許書瑜', '黃政維', '郭睿桓', '段浩恩'],
+                      labels: [
+                              {% for saler in saler_cnt %}
+                                '{{ saler.name}}',
+                              {% endfor %}
+                              ],
                       datasets: [
                         {
                           label: '業績',
-                          data: [65, 59, 80, 81],
+                          data: [
+                                {% for saler in saler_cnt %}
+                                  {{ saler.data}},
+                                {% endfor %}
+                                ],
                           backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
                             'rgba(255, 159, 64, 0.2)',

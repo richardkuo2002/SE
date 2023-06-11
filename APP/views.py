@@ -235,7 +235,6 @@ def maolee(request):
 def manyeedo(request):
     return render(request, 'manyeedo.html', locals())
 
-    
 def month_up(request):
     now_month = datetime.today().date().month
     months_range = [ i + 1 for i in range(now_month)]
@@ -261,6 +260,37 @@ def year_up(request):
     return render(request, 'year_up.html', locals())
 
 def yagee(request):
+    all_saler = Salesperson.objects.all()
+    saler_list = []
+    saler_cnt = []
+    months_range = range(1, 13)
+    month_list = []
+    
+    for saler in all_saler:
+        this_saler_sale = CustomerProgress.objects.filter(sale = saler.salesperson_id)
+        this_year = []
+        cnt = 0
+        for month in months_range:
+            this_month = 0
+            for sale in this_saler_sale:
+                if sale.sale.sale_date.month == month:
+                    this_month += sale.sale.inventory.Inventory_unit_price * sale.sale.sale_volume
+                    cnt += 1
+            this_year.append(this_month)
+        saler_list.append({'name': saler.salesperson_name, 'data': this_year})
+        saler_cnt.append({'name': saler.salesperson_name, 'data': cnt})
+    
+    
+    for month in months_range:
+        month_cnt = []
+        for saler in all_saler:
+            cnt = 0
+            this_saler_sale = CustomerProgress.objects.filter(sale = saler.salesperson_id)
+            for sale in this_saler_sale:
+                if sale.sale.sale_date.month == month:
+                    cnt += 1
+            month_cnt.append(cnt)
+        month_list.append({'month': month, 'data': month_cnt})
     return render(request, 'yagee.html', locals())
 
 def yagee_all(request):
