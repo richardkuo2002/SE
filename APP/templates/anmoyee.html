@@ -394,7 +394,7 @@
                       ],
                       datasets: [{
                         label: '按摩椅滿意度',
-                        data: [70, 30], // 修改數據為滿意度和不滿意度的比例
+                        data: [{{ satisfied_rate }}, {{ unsatisfied_rate }}], // 修改數據為滿意度和不滿意度的比例
                         backgroundColor: [
                           'rgb(75, 192, 192)',
                           'rgb(255, 99, 132)'
@@ -424,12 +424,12 @@
                     type: 'doughnut',
                     data: {
                       labels: [
-                        '滿意',
-                        '不滿意'
+                        '有購買',
+                        '無購買'
                       ],
                       datasets: [{
                         label: '按摩椅滿意度',
-                        data: [70, 30], // 修改數據為滿意度和不滿意度的比例
+                        data: [{{ buy_rate }}, {{ not_buy_rate }}], // 修改數據為滿意度和不滿意度的比例
                         backgroundColor: [
                           'rgb(75, 192, 192)',
                           'rgb(255, 99, 132)'
@@ -457,42 +457,21 @@
 
               <!-- Default Accordion -->
               <div class="accordion" id="accordionExample">
+              {% for i in chair_list %}
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                      按摩椅A試坐次數
+                      {{ i.name }}試坐次數
                     </button>
                   </h2>
                   <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
                     <div class="accordion-body">
-                      <strong>99次</strong> 
+                      <strong>{{ i.count }}次</strong> 
                     </div>
                   </div>
                 </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingTwo">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                      按摩椅B試坐次數
-                    </button>
-                  </h2>
-                  <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                      <strong>70次</strong> 
-                    </div>
-                  </div>
-                </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingThree">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                      按摩椅C試坐次數
-                    </button>
-                  </h2>
-                  <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                      <strong>12次</strong> 
-                    </div>
-                  </div>
-                </div>
+                {% endfor %}
+                
               </div><!-- End Default Accordion Example -->
 
             </div>

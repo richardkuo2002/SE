@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
+import random
 
 # Create your views here.
 
@@ -297,7 +298,78 @@ def yagee_all(request):
     return render(request, 'yagee_all.html', locals())
 
 def stock(request):
+    products = Inventory.objects.all()
+    months_range = range(1, 13)
+    stock_list = []
+    total_purchase_cost = 0
+    total_stock_cost = 0
+    stock_list_sale = []
+    
+    product_stock_list = []
+    
+    for product in products:
+        purchases = Purchases.objects.filter(Inventory_id = product.Inventory_id)
+        month_list = []
+        
+        sales = Sale.objects.filter(inventory = product.Inventory_id)
+        month_list_sale = []
+        
+        product_stock = 0
+        for month in months_range:
+            this_month = 0
+            for purchase in purchases:
+                if purchase.Date.month == month:
+                    this_month += purchase.Quantity
+                    total_purchase_cost += purchase.Quantity * purchase.Inventory_id.Inventory_cost
+                    total_stock_cost += purchase.Quantity * purchase.Inventory_id.Inventory_cost
+            month_list.append(this_month)
+            
+            this_month_sale = 0
+            for sale in sales:
+                if sale.sale_date.month == month:
+                    this_month_sale += sale.sale_volume
+                    total_stock_cost -= sale.sale_volume * sale.inventory.Inventory_cost
+            month_list_sale.append(this_month_sale)
+        
+            product_stock += this_month - this_month_sale
+        
+        rgbValue=""
+        for _ in range(6):
+            rgbValue += random.choice("0123456789ABCDEF")
+
+        rgbValue = "#"+rgbValue
+
+        
+        stock_list.append({'name': product.Inventory_name, 'data': month_list, 'rgb': rgbValue})
+        stock_list_sale.append({'name': product.Inventory_name, 'data': month_list_sale, 'rgb': rgbValue})
+        product_stock_list.append({'name': product.Inventory_name, 'data': product_stock, 'rgb': rgbValue})
+    print(product_stock_list)
     return render(request, 'stock.html', locals())
 
 def anmoyee(request):
+    public_chairs = Public_Massage_chair.objects.all()
+    satisfied = 0
+    buy = 0
+    
+    for chair in public_chairs:
+        if chair.get_feedback() == '滿意':
+            satisfied += 1
+        progresses = CustomerProgress.objects.filter(customer = chair.customer)
+        for progress in progresses:
+            if progress.get_customer_level() == '購買完成':
+                buy += 1
+    satisfied_rate = satisfied 
+    unsatisfied_rate = public_chairs.count() - satisfied_rate
+    
+    buy_rate = buy
+    not_buy_rate = public_chairs.count() - buy_rate
+    
+    chair_list = []
+    all_chair = Inventory.objects.all()
+    for chair in all_chair:
+        public_chairs = Public_Massage_chair.objects.filter(Inventory_id = chair.Inventory_id)
+        if public_chairs == None:
+            continue
+        chair_list.append({'name': chair.Inventory_name, "count": public_chairs.count()})
+    
     return render(request, 'anmoyee.html', locals())

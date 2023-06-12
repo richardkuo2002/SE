@@ -35,7 +35,6 @@ class Branch(models.Model):
 class Inventory(models.Model):
     Inventory_id = models.AutoField(primary_key=True)
     Inventory_name = models.CharField(max_length=100)
-    Inventory_quantity = models.IntegerField(default=0)
     Inventory_cost = models.DecimalField(max_digits=10, decimal_places=2)
     Inventory_unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     
@@ -128,16 +127,16 @@ class CustomerProgress(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True)
     salesperson = models.ForeignKey(Salesperson, on_delete=models.CASCADE)
     progress_status = models.IntegerField(choices=(
-        (1, ''),
-        (2, ''),
-        (3, '完成')
+        (1, '申辦會員'),
+        (2, '體驗按摩椅'),
+        (3, '購買完成')
     ), default=1)
 
     def get_customer_level(self):
         return {
-            1: '',
-            2: '',
-            3: '完成'
+            1: '申辦會員',
+            2: '體驗按摩椅',
+            3: '購買完成'
         }[self.progress_status]
     
     def __str__(self):
@@ -163,6 +162,17 @@ class Public_Massage_chair(models.Model):
     Inventory_id = models.ForeignKey(Inventory, on_delete=models.CASCADE, default=1)
     Date = models.DateField(db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    feedback = models.IntegerField(choices=(
+        (1, '滿意'),
+        (2, '不滿意')
+    ), default=1)
+    
+    def get_feedback(self):
+        return {
+            1: '滿意',
+            2: '不滿意'
+        }[self.feedback]
+    
     
     def __str__(self):
         return str(self.Date) + "_" + str(self.Inventory_id) + "_" + str(self.customer)

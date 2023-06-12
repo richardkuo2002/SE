@@ -388,27 +388,19 @@
                       data: {
                         labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
                         datasets: [
+                          {% for stock in stock_list %}
                           {
-                            label: '按摩椅A',
-                            data: [65, 59, 80, 81, 56, 55, 40, 70, 75, 68, 72, 77],
+                            label: '{{ stock.name }}',
+                            data: [
+                                  {% for data in stock.data %}
+                                    {{ data }},
+                                  {% endfor%}
+                                  ],
                             fill: false,
-                            borderColor: 'rgb(75, 192, 192)',
+                            borderColor: '{{ stock.rgb }}',
                             tension: 0.1
                           },
-                          {
-                            label: '按摩椅B',
-                            data: [45, 50, 65, 70, 60, 55, 50, 58, 63, 68, 65, 62],
-                            fill: false,
-                            borderColor: 'rgb(255, 99, 132)',
-                            tension: 0.1
-                          },
-                          {
-                            label: '按摩椅C',
-                            data: [30, 32, 40, 42, 35, 30, 28, 34, 40, 38, 42, 45],
-                            fill: false,
-                            borderColor: 'rgb(54, 162, 235)',
-                            tension: 0.1
-                          }
+                          {% endfor %}
                         ]
                       },
                       options: {
@@ -435,13 +427,13 @@
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title">庫存總成本</h5>
-                  <h5>$878787</h5>
+                  <h5>${{ total_stock_cost }}</h5>
                 </div>
               </div>
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title">進貨總成本</h5>
-                  <h5>$878787</h5>
+                  <h5>${{ total_purchase_cost }}</h5>
                 </div>
               </div>
             </div>
@@ -462,27 +454,19 @@
                     data: {
                       labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
                       datasets: [
+                        {% for stock in stock_list_sale %}
                         {
-                          label: '按摩椅A',
-                          data: [65, 59, 80, 81, 56, 55, 40, 70, 75, 68, 72, 77],
+                          label: '{{ stock.name }}',
+                          data: [
+                                {% for data in stock.data %}
+                                  {{ data }},
+                                {% endfor%}
+                                ],
                           fill: false,
-                          borderColor: 'rgb(75, 192, 192)',
+                          borderColor: '{{ stock.rgb }}',
                           tension: 0.1
                         },
-                        {
-                          label: '按摩椅B',
-                          data: [45, 50, 65, 70, 60, 55, 50, 58, 63, 68, 65, 62],
-                          fill: false,
-                          borderColor: 'rgb(255, 99, 132)',
-                          tension: 0.1
-                        },
-                        {
-                          label: '按摩椅C',
-                          data: [30, 32, 40, 42, 35, 30, 28, 34, 40, 38, 42, 45],
-                          fill: false,
-                          borderColor: 'rgb(54, 162, 235)',
-                          tension: 0.1
-                        }
+                        {% endfor %}
                       ]
                     },
                     options: {
@@ -516,10 +500,18 @@
                   new Chart(document.querySelector('#barChart'), {
                     type: 'bar',
                     data: {
-                      labels: ['按摩椅A', '按摩椅B', '按摩椅C'],
+                      labels: [
+                              {% for i in product_stock_list%}
+                                '{{ i.name }}',
+                              {% endfor %}
+                              ],
                       datasets: [{
                         label: 'Bar Chart',
-                        data: [65, 59, 80, 81, 56, 55, 40],
+                        data: [
+                              {% for i in product_stock_list%}
+                                '{{ i.data }}',
+                              {% endfor %}
+                              ],
                         backgroundColor: [
                           'rgba(255, 99, 132, 0.2)',
                           'rgba(255, 159, 64, 0.2)',
