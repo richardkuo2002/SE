@@ -196,7 +196,7 @@ def season_rank(request):
                 q_table[i][idx + 1] += sales_amount
         q_list_2.append({'local': local_list[idx], 'value': loacl_total})
     for i in range(4):
-        q_list.append({"q":i + 1, "value": q_table[i]})
+        q_list.append({"q":i , "value": q_table[i]})
     return render(request, 'season_rank.html', locals())
 
 def maolee(request):
