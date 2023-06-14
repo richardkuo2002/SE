@@ -388,12 +388,12 @@
                       data: {
                         labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
                         datasets: [
-                          {% for stock in stock_list %}
+                          {% for month in Monthly_Count %}
                           {
-                            label: '{{ stock.name }}',
+                            label: '{{ month.Name }}',
                             data: [
-                                  {% for data in stock.data %}
-                                    {{ data }},
+                                  {% for Data in month.Purchase_Data %}
+                                    {{ Data }},
                                   {% endfor%}
                                   ],
                             fill: false,
@@ -427,13 +427,13 @@
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title">庫存總成本</h5>
-                  <h5>${{ total_stock_cost }}</h5>
+                  <h5>${{ Total_Stock_Cost }}</h5>
                 </div>
               </div>
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title">進貨總成本</h5>
-                  <h5>${{ total_purchase_cost }}</h5>
+                  <h5>${{ Total_Purchase_Cost }}</h5>
                 </div>
               </div>
             </div>
@@ -454,20 +454,20 @@
                     data: {
                       labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
                       datasets: [
-                        {% for stock in stock_list_sale %}
-                        {
-                          label: '{{ stock.name }}',
-                          data: [
-                                {% for data in stock.data %}
-                                  {{ data }},
-                                {% endfor%}
-                                ],
-                          fill: false,
-                          borderColor: '{{ stock.rgb }}',
-                          tension: 0.1
-                        },
-                        {% endfor %}
-                      ]
+                                {% for month in Monthly_Count %}
+                                {
+                                  label: '{{ month.Name }}',
+                                  data: [
+                                        {% for Data in month.Sale_Data %}
+                                          {{ Data }},
+                                        {% endfor%}
+                                        ],
+                                  fill: false,
+                                  borderColor: '{{ stock.rgb }}',
+                                  tension: 0.1
+                                },
+                                {% endfor %}
+                                ]
                     },
                     options: {
                       scales: {
@@ -501,15 +501,15 @@
                     type: 'bar',
                     data: {
                       labels: [
-                              {% for i in product_stock_list%}
-                                '{{ i.name }}',
+                              {% for i in Monthly_Count%}
+                                '{{ i.Name }}',
                               {% endfor %}
                               ],
                       datasets: [{
                         label: 'Bar Chart',
                         data: [
-                              {% for i in product_stock_list%}
-                                '{{ i.data }}',
+                              {% for i in Monthly_Count%}
+                                '{{ i.Stock }}',
                               {% endfor %}
                               ],
                         backgroundColor: [

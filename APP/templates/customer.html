@@ -390,15 +390,15 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for customer in customers_list%}
+                  {% for Customer in Customers_List %}
                   <tr>
-                    <th scope="row">{{customer.id}}</th>
-                    <td>{{customer.name}}</td>
-                    <td>{%for name in customer.salesperson %}
+                    <th scope="row">{{Customer.ID}}</th>
+                    <td>{{Customer.Name}}</td>
+                    <td>{%for name in Customer.Sellers %}
                           {{name}}
                         {% endfor %}
                     </td>
-                    <td><span class="badge bg-primary">{{customer.label}}</span></td>
+                    <td><span class="badge bg-primary">{{Customer.label}}</span></td>
                     
                   </tr>
                   {% endfor %}

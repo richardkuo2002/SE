@@ -16,55 +16,53 @@ import random
 def index(request):
     # 獲取當前日期
     today = date.today()
-    current_year = datetime.now().year
     
-    # 獲取本月的第一天和最後一天
-    today = datetime.today().date()
-    start_date_this_month = today.replace(day=1)
-    end_date_this_month = start_date_this_month.replace(day=1, month=start_date_this_month.month + 1)
-
-    start_date_last_month = (start_date_this_month - timedelta(days=1)).replace(day=1)
-    end_date_last_month = start_date_this_month - timedelta(days=1)
-
-    # 獲取本月的銷售量
-    sales_this_month = Sale.objects.filter(sale_date__range=(start_date_this_month, end_date_this_month))
-    total_sales_cnt = sales_this_month.count()
-    profit_this_month = Sale.objects.filter(sale_date__range=(start_date_this_month, end_date_this_month))
-    total_profit_int = 0
-    for sale in profit_this_month:
-        total_profit_int += sale.inventory.Inventory_unit_price * sale.sale_volume
-    total_profit = format(int(total_profit_int), ",d")
-    total_customers = CustomerProgress.objects.filter(sale__in = sales_this_month).values('customer').annotate(total=Count('customer')).count()
+    # 計算這個月
+    This_Month_Sales = SALE.objects.filter(Sale_Date__month = today.month, Sale_Date__year = today.year)
+    This_Month_Sales_Count = This_Month_Sales.count()
+    This_month_Revenue = 0
+    This_month_Customer_Count = 0
+    count = []
+    for sale in This_Month_Sales:
+        This_month_Revenue += sale.Selling_Price
+        try:
+            count.index(sale.Customer.ID)
+        except:
+            count.append(sale.Customer.ID)
+            This_month_Customer_Count += 1
     
-    
-    # 獲取上個月 
-    sales_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
-    sales_last_month_cnt = sales_last_month.count()
-    profit_last_month = Sale.objects.filter(sale_date__range=(start_date_last_month, end_date_last_month))
-    total_profit_last_month_int = 0
-    for sale in profit_last_month:
-        total_profit_last_month_int += sale.inventory.Inventory_unit_price * sale.sale_volume
-    total_profit_last_month = format(int(total_profit_last_month_int), ",d")
-    customers_last_month = CustomerProgress.objects.filter(sale__in = sales_last_month).values('customer').annotate(total=Count('customer')).count()
+    # 計算上個月
+    Last_Month_Sales = SALE.objects.filter(Sale_Date__month = today.month - 1, Sale_Date__year = today.year)
+    Last_Month_Sales_Count = Last_Month_Sales.count()
+    Last_month_Revenue = 0
+    Last_month_Customer_Count = 0
+    count = []
+    for sale in Last_Month_Sales:
+        Last_month_Revenue += sale.Selling_Price
+        try:
+            count.index(sale.Customer.ID)
+        except:
+            count.append(sale.Customer.ID)
+            Last_month_Customer_Count += 1
     
     # 計算變化量
-    sales_increase = total_sales_cnt - sales_last_month_cnt
-    sales_increase_percentage = int((sales_increase / sales_last_month_cnt) * 100) if sales_last_month_cnt != 0 else 0
-    profit_increase = total_profit_int - total_profit_last_month_int
-    profit_increase_percentage = int((profit_increase / total_profit_last_month_int) * 100) if total_profit_last_month_int != 0 else 0
-    customer_increase = total_customers - customers_last_month
-    customers_increase_percentage = int((customer_increase / customers_last_month) * 100) if customers_last_month != 0 else 0
+    Delta_Sales_Count = This_Month_Sales_Count - Last_Month_Sales_Count
+    Delta_Sales_Count_Percentage = int((Delta_Sales_Count / Last_Month_Sales_Count) * 100) if Last_Month_Sales_Count != 0 else 0
+    Delta_Revenue = This_month_Revenue - Last_month_Revenue
+    Delta_Revenue_Percentage = int((Delta_Revenue / Last_month_Revenue) * 100) if Last_month_Revenue != 0 else 0
+    Delta_Customer_Count = This_month_Customer_Count - Last_month_Customer_Count
+    Delta_Customer_Count_Percentage = int((Delta_Customer_Count / Last_month_Customer_Count) * 100) if Last_month_Customer_Count != 0 else 0
     
     # 字體改變
-    sales_increase_percentage_str = "increase" if sales_increase_percentage >= 0 else "decrease"
-    sales_precentage_color = "text-success small pt-1 fw-bold" if sales_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
-    profit_increase_percentage_str = "increase" if profit_increase_percentage >= 0 else "decrease"
-    profit_precentage_color = "text-success small pt-1 fw-bold" if sales_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
-    customers_increase_percentage_str = "increase" if customers_increase_percentage >= 0 else "decrease"
-    customers_precentage_color = "text-success small pt-1 fw-bold" if customers_increase_percentage >= 0 else "text-danger small pt-1 fw-bold"
+    sales_increase_percentage_str = "increase" if Delta_Sales_Count_Percentage >= 0 else "decrease"
+    sales_precentage_color = "text-success small pt-1 fw-bold" if Delta_Sales_Count_Percentage >= 0 else "text-danger small pt-1 fw-bold"
+    profit_increase_percentage_str = "increase" if Delta_Revenue_Percentage >= 0 else "decrease"
+    profit_precentage_color = "text-success small pt-1 fw-bold" if Delta_Revenue_Percentage >= 0 else "text-danger small pt-1 fw-bold"
+    customers_increase_percentage_str = "increase" if Delta_Customer_Count_Percentage >= 0 else "decrease"
+    customers_precentage_color = "text-success small pt-1 fw-bold" if Delta_Customer_Count_Percentage >= 0 else "text-danger small pt-1 fw-bold"
     
-    sales_by_month = Sale.objects.filter(sale_date__year=current_year)
-    monthly_customers = CustomerProgress.objects.annotate(month=ExtractMonth('sale__sale_date')).values('month').annotate(total_customers=Count('customer', distinct=True)).order_by('month')
+    sales_by_month = SALE.objects.filter(Sale_Date__year = today.year)
+    monthly_customers = SALE.objects.annotate(month=ExtractMonth('Sale_Date')).values('month').annotate(total_customers=Count('Customer', distinct=True)).order_by('month')
     months_range = range(1, 13)
     
     sales_dict = {}
@@ -81,14 +79,12 @@ def index(request):
         profit_count = 0
         customer_count = 0
         for sale in sales_by_month:
-            if sale.sale_date.month == month:
-                sales_count = profit.sale_volume
-                sales_dict[month] += sales_count
+            if sale.Sale_Date.month == month:
+                sales_dict[month] += 1
         
         for profit in sales_by_month:
-            if profit.sale_date.month == month:
-                profit_count = profit.inventory.Inventory_unit_price * profit.sale_volume
-                profit_dict[month] += profit_count
+            if profit.Sale_Date.month == month:
+                profit_dict[month] += profit.Selling_Price
         # print(f"Month {month}: {profit_count}")
         
         for customer in monthly_customers:
@@ -98,7 +94,7 @@ def index(request):
     return render(request, 'index.html', locals())
 
 def business(request):
-    salesperson_sales = Salesperson.objects.all()
+    salesperson_sales = SELLER.objects.all()
     saleperson_dict = {}
     for sp in salesperson_sales:
         salesperson_id = sp.salesperson_id
@@ -118,51 +114,46 @@ def business(request):
     return render(request, 'business.html', locals())
 
 def customer(request):
-    customers = Customer.objects.all()
-    customers_list = []
-    for customer in customers:
-        try:
-            salesperson_id_list = CustomerProgress.objects.filter(customer=customer.customer_id).values_list('salesperson', flat=True).distinct()
-        except:
-            salesperson_id_list = []
+    Customers = CUSTOMER.objects.all()
+    Customers_List = []
+    for Customer in Customers:
         name_list = []
-        for salesperson_id in salesperson_id_list:
-            salesperson_name = Salesperson.objects.filter(salesperson_id = salesperson_id).values('salesperson_name')[0]
-            name_list.append(salesperson_name['salesperson_name'])
-        customers_list.append({'id': customer.customer_id, 'name': customer.customer_name, 'salesperson': name_list, 'label': customer.get_customer_level()})
+        Sales = SALE.objects.filter(Customer = Customer.ID)
+        for Sale in Sales:
+            try:
+                name_list.index(Sale.Seller.Name)
+            except:
+                name_list.append(Sale.Seller.Name)
+        print(name_list)
+        Customers_List.append({'ID': Customer.ID, 'Name': Customer.Name, 'Sellers': name_list, 'label': "普通會員"})
     
     return render(request, 'customer.html', locals())
 
 def sale_rank(request):
-    today = datetime.today().date()
-    start_date_this_month = today.replace(day=1)
-    end_date_this_month = start_date_this_month.replace(day=1, month=start_date_this_month.month + 1)
-    start_date_this_year = today.replace(day=1)
-    end_date_this_year = start_date_this_year.replace(day=1, year=start_date_this_year.year + 1)
-    branches = Branch.objects.all()
+    today = datetime.today()
+    branches = BRANCH.objects.all()
     branche_dict = {}
     branche_dict_year = {}
     for branch in branches:
-        sale_list_month = Sale.objects.filter(branch = branch.branch_id, sale_date__range=(start_date_this_month, end_date_this_month))
+        This_Month_Sales = SALE.objects.filter(Branch = branch.ID, Sale_Date__month = today.month, Sale_Date__year = today.year)
         total_sale_month = 0
-        for sale in sale_list_month:
-            total_sale_month += sale.inventory.Inventory_unit_price * sale.sale_volume
-        branche_dict[branch.branch_name] = total_sale_month
+        for Sale in This_Month_Sales:
+            total_sale_month += Sale.Selling_Price
+        branche_dict[branch.Name] = total_sale_month
         
-        sale_list_year = Sale.objects.filter(branch = branch.branch_id)
+        This_Year_Sales = SALE.objects.filter(Branch = branch.ID, Sale_Date__year = today.year)
         total_sale_year = 0
-        for sale in sale_list_year:
-            if sale.sale_date.year == today.year:
-                total_sale_year += sale.inventory.Inventory_unit_price * sale.sale_volume
-        branche_dict_year[branch.branch_name] = total_sale_year
+        for Sale in This_Year_Sales:
+            total_sale_year += Sale.Selling_Price
+        branche_dict_year[branch.Name] = total_sale_year
     branche_dict = dict(sorted(branche_dict.items(), key=lambda x: x[1]))
     branche_dict_year = dict(sorted(branche_dict_year.items(), key=lambda x: x[1]))
+    
     branch_list = []
     for idx, (key, value) in enumerate(reversed(branche_dict.items())):
         if idx == 3:
             break
         branch_list.append({'name': key, 'value': value})
-    
     
     branch_list_year = []
     for idx, (key, value) in enumerate(reversed(branche_dict_year.items())):
@@ -179,18 +170,18 @@ def season_rank(request):
     q_list = []
     q_list_2 = [{'local': "中原店", 'value': [0, 0, 0, 0]}]
     for idx in range(3):
-        branches = Branch.objects.filter(local = idx + 1)
+        branches = BRANCH.objects.filter(District = idx + 1)
         loacl_total = [0 for _ in range(4)]
         for branch in branches:
             # 計算每季銷售額
-            sales_by_quarter = Sale.objects.filter(sale_date__year=current_year, branch = branch.branch_id).annotate(
-                quarter=ExtractQuarter('sale_date')
+            sales_by_quarter = SALE.objects.filter(Sale_Date__year=current_year, Branch_id = branch.ID).annotate(
+                quarter=ExtractQuarter('Sale_Date')
             )
             for i in range(4):
                 sales_amount = 0
                 for entry in sales_by_quarter:
                     if entry.quarter == i + 1:
-                        sales_amount = entry.inventory.Inventory_unit_price * entry.sale_volume
+                        sales_amount = entry.Selling_Price
                         break
                 loacl_total[i] += sales_amount
                 q_table[i][idx + 1] += sales_amount
@@ -202,30 +193,24 @@ def season_rank(request):
 def maolee(request):
     
     current_year = datetime.now().year
-    monthly_sale = Sale.objects.filter(sale_date__year=current_year)
+    This_Year_Sales = SALE.objects.filter(Sale_Date__year=current_year)
     months_range = range(1, 13)
     sales_dict = {}
     profit_dict = {}
     cost_dict = {}
     
     for month in months_range:
-        sales_count = 0
-        for sale in monthly_sale:
-            if sale.sale_date.month == month:
-                sales_count += sale.inventory.Inventory_unit_price * sale.sale_volume
-        sales_dict[month] = sales_count
-        
-        cost_count = 0
-        for cost in monthly_sale:
-            if cost.sale_date.month == month:
-                cost_count += sale.inventory.Inventory_cost * sale.sale_volume
-        cost_dict[month] = cost_count
-        
-        profit_count = 0
-        for profit in monthly_sale:
-            if profit.sale_date.month == month:
-                profit_count += (sale.inventory.Inventory_unit_price - sale.inventory.Inventory_cost) * sale.sale_volume
-        profit_dict[month] = profit_count
+        This_Month_Sales = 0
+        This_Month_Cost = 0
+        This_Month_Profit = 0
+        for sale in This_Year_Sales:
+            if sale.Sale_Date.month == month:
+                This_Month_Sales += sale.Selling_Price
+                This_Month_Cost += sale.Product.Cost
+                This_Month_Profit += sale.Selling_Price - sale.Product.Cost
+        sales_dict[month] = This_Month_Sales
+        cost_dict[month] = This_Month_Cost
+        profit_dict[month] = This_Month_Profit
         
     return render(request, 'maolee.html', locals())
 
@@ -235,13 +220,13 @@ def manyeedo(request):
 def month_up(request):
     now_month = datetime.today().date().month
     months_range = [ i + 1 for i in range(now_month)]
-    sales = Sale.objects.all()
+    sales = SALE.objects.all()
     
     monthly_sales = [0 for _ in range(now_month)]
     for sale in sales:
         for month in months_range:
-            if sale.sale_date.month == month + 1:
-                monthly_sales[month] += sale.inventory.Inventory_unit_price * sale.sale_volume
+            if sale.Sale_Date.month == month + 1:
+                monthly_sales[month] += sale.Selling_Price
                 break
     
     monthly_sales_2d = [ [i] for i in monthly_sales]
@@ -257,115 +242,127 @@ def year_up(request):
     return render(request, 'year_up.html', locals())
 
 def yagee(request):
-    all_saler = Salesperson.objects.all()
+    today = date.today()
+    all_saler = SELLER.objects.all()
     saler_list = []
     saler_cnt = []
     months_range = range(1, 13)
     month_list = []
     
     for saler in all_saler:
-        this_saler_sale = CustomerProgress.objects.filter(sale = saler.salesperson_id)
+        this_saler_sale = SALE.objects.filter(Seller = saler.ID, Sale_Date__year = today.year)
         this_year = []
         cnt = 0
         for month in months_range:
             this_month = 0
             for sale in this_saler_sale:
-                if sale.sale.sale_date.month == month:
-                    this_month += sale.sale.inventory.Inventory_unit_price * sale.sale.sale_volume
+                if sale.Sale_Date.month == month:
+                    this_month += sale.Selling_Price
                     cnt += 1
             this_year.append(this_month)
-        saler_list.append({'name': saler.salesperson_name, 'data': this_year})
-        saler_cnt.append({'name': saler.salesperson_name, 'data': cnt})
+        saler_list.append({'name': saler.Name, 'data': this_year})
+        saler_cnt.append({'name': saler.Name, 'data': cnt})
     
     
     for month in months_range:
         month_cnt = []
         for saler in all_saler:
             cnt = 0
-            this_saler_sale = CustomerProgress.objects.filter(sale = saler.salesperson_id)
+            this_saler_sale = SALE.objects.filter(Seller = saler.ID, Sale_Date__year = today.year)
             for sale in this_saler_sale:
-                if sale.sale.sale_date.month == month:
+                if sale.Sale_Date.month == month:
                     cnt += 1
             month_cnt.append(cnt)
         month_list.append({'month': month, 'data': month_cnt})
     return render(request, 'yagee.html', locals())
 
 def yagee_all(request):
+    today = date.today()
+    This_Year = today.year
+    Last_Year = today.year - 1
+    months_range = range(1, 13)
+    This_Year_Sales = SALE.objects.filter(Sale_Date__year=today.year)
+    Last_Year_Sales = SALE.objects.filter(Sale_Date__year=today.year - 1)
+    This_Year_Sales_dict = []
+    Last_Year_Sales_dict = []
+    
+    This_Year_Revenue = 0
+    Last_Year_Revenue = 0
+    for month in months_range:
+        This_Month_Revenue = 0
+        for sale in This_Year_Sales:
+            if sale.Sale_Date.month == month:
+                This_Month_Revenue += sale.Selling_Price
+        This_Year_Sales_dict.append(This_Month_Revenue)
+        This_Year_Revenue += This_Month_Revenue
+        
+        Last_Month_Revenue = 0
+        for sale in Last_Year_Sales:
+            if sale.Sale_Date.month == month:
+                Last_Month_Revenue += sale.Selling_Price
+        Last_Year_Sales_dict.append(Last_Month_Revenue)
+        Last_Year_Revenue += Last_Month_Revenue
+        
     return render(request, 'yagee_all.html', locals())
 
 def stock(request):
-    products = Inventory.objects.all()
+    today = date.today()
+    Products_Category =  PRODUCT_MODEL.objects.all()
+    Sales = SALE.objects.all()
     months_range = range(1, 13)
-    stock_list = []
-    total_purchase_cost = 0
-    total_stock_cost = 0
-    stock_list_sale = []
+    Monthly_Count = []
+    Total_Purchase_Cost = 0
+    Total_Stock_Cost = 0
     
-    product_stock_list = []
-    
-    for product in products:
-        purchases = Purchases.objects.filter(Inventory_id = product.Inventory_id)
-        month_list = []
-        
-        sales = Sale.objects.filter(inventory = product.Inventory_id)
-        month_list_sale = []
-        
-        product_stock = 0
+    for Category in Products_Category:
+        Purchase_List = []
+        Sale_List = []
         for month in months_range:
-            this_month = 0
-            for purchase in purchases:
-                if purchase.Date.month == month:
-                    this_month += purchase.Quantity
-                    total_purchase_cost += purchase.Quantity * purchase.Inventory_id.Inventory_cost
-                    total_stock_cost += purchase.Quantity * purchase.Inventory_id.Inventory_cost
-            month_list.append(this_month)
+            This_Month_Purchase = PRODUCT.objects.filter(Category = Category.ID, Purchase_Date__month = month, Purchase_Date__year = today.year)
+            This_Month_Purchase_Count = This_Month_Purchase.count()
+            Purchase_List.append(This_Month_Purchase_Count)
+            for Purchase in This_Month_Purchase:
+                Total_Purchase_Cost += Purchase.Cost
             
-            this_month_sale = 0
-            for sale in sales:
-                if sale.sale_date.month == month:
-                    this_month_sale += sale.sale_volume
-                    total_stock_cost -= sale.sale_volume * sale.inventory.Inventory_cost
-            month_list_sale.append(this_month_sale)
+            This_Month_Sale = SALE.objects.filter(Product__Category = Category.ID, Sale_Date__month = month, Sale_Date__year = today.year)
+            This_Month_Sale_Count = This_Month_Sale.count()
+            Sale_List.append(This_Month_Sale_Count)
+            
         
-            product_stock += this_month - this_month_sale
-        
+        Stocks = PRODUCT.objects.filter(Category = Category.ID, Purchase_Date__year = today.year, State = 1)
+        Stock_Count = Stocks.count()
+        for Stock in Stocks:
+            Total_Stock_Cost += Stock.Cost
+                
         rgbValue=""
         for _ in range(6):
             rgbValue += random.choice("0123456789ABCDEF")
-
-        rgbValue = "#"+rgbValue
-
+        rgbValue = "#" + rgbValue
         
-        stock_list.append({'name': product.Inventory_name, 'data': month_list, 'rgb': rgbValue})
-        stock_list_sale.append({'name': product.Inventory_name, 'data': month_list_sale, 'rgb': rgbValue})
-        product_stock_list.append({'name': product.Inventory_name, 'data': product_stock, 'rgb': rgbValue})
-    print(product_stock_list)
+        Monthly_Count.append({"Name": Category.Name, "Purchase_Data": Purchase_List, "Sale_Data": Sale_List, "rgb": rgbValue, "Stock": Stock_Count})
+
     return render(request, 'stock.html', locals())
 
 def anmoyee(request):
-    public_chairs = Public_Massage_chair.objects.all()
-    satisfied = 0
-    buy = 0
+    Public_Chairs = PRODUCT.objects.filter(State = 3)
+    Satisfied = PUBLIC_MASSAGE_CHAIR.objects.filter(Feedback = 1).count()
+    Unsatisfied = PUBLIC_MASSAGE_CHAIR.objects.filter(Feedback = 2).count()
+    Buy = 0
+    Not_Buy = 0
     
-    for chair in public_chairs:
-        if chair.get_feedback() == '滿意':
-            satisfied += 1
-        progresses = CustomerProgress.objects.filter(customer = chair.customer)
-        for progress in progresses:
-            if progress.get_customer_level() == '購買完成':
-                buy += 1
-    satisfied_rate = satisfied 
-    unsatisfied_rate = public_chairs.count() - satisfied_rate
+    Chair_List = []
     
-    buy_rate = buy
-    not_buy_rate = public_chairs.count() - buy_rate
-    
-    chair_list = []
-    all_chair = Inventory.objects.all()
-    for chair in all_chair:
-        public_chairs = Public_Massage_chair.objects.filter(Inventory_id = chair.Inventory_id)
-        if public_chairs == None:
-            continue
-        chair_list.append({'name': chair.Inventory_name, "count": public_chairs.count()})
+    for Chair in Public_Chairs:
+        
+        Experiences = PUBLIC_MASSAGE_CHAIR.objects.filter(Product = Chair.ID)
+        Experience_Count = Experiences.count()
+        for Experience in Experiences:
+            Experience_Day = Experience.Date
+            Customer = Experience.Customer
+            if SALE.objects.filter(Customer = Customer, Sale_Date = Experience_Day).count() > 0:
+                Buy += 1
+            else:
+                Not_Buy += 1
+        Chair_List.append({"Name": Chair.Category.Name, "Experience_Count": Experience_Count})
     
     return render(request, 'anmoyee.html', locals())

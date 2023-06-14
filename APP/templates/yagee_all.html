@@ -390,15 +390,23 @@
                       labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
                       datasets: [
                         {
-                          label: '2022年',
-                          data: [65, 59, 80, 81, 56, 55, 40, 70, 62, 50, 75, 80],
+                          label: '{{ Last_Year }}年',
+                          data: [
+                                {% for data in Last_Year_Sales_dict %}
+                                  {{ data }},
+                                {% endfor %}
+                                ],
                           backgroundColor: 'rgba(255, 99, 132, 0.2)',
                           borderColor: 'rgb(255, 99, 132)',
                           borderWidth: 1
                         },
                         {
-                          label: '2023年',
-                          data: [70, 65, 75, 82, 60, 58, 45, 72, 68, 55, 78, 85],
+                          label: '{{ This_Year }}年',
+                          data: [
+                                {% for data in This_Year_Sales_dict %}
+                                  {{ data }},
+                                {% endfor %}
+                                ],
                           backgroundColor: 'rgba(54, 162, 235, 0.2)',
                           borderColor: 'rgb(54, 162, 235)',
                           borderWidth: 1
@@ -456,10 +464,10 @@
                     new Chart(document.querySelector('#barChart2'), {
                       type: 'bar',
                       data: {
-                        labels: ['2022', '2023'],
+                        labels: ['{{ Last_Year }}', '{{ This_Year}}'],
                         datasets: [{
                           label: '業績',
-                          data: [8787,33321],
+                          data: [{{ Last_Year_Revenue }},{{ This_Year_Revenue }}],
                           backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
                             'rgba(255, 159, 64, 0.2)',

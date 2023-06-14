@@ -394,7 +394,7 @@
                       ],
                       datasets: [{
                         label: '按摩椅滿意度',
-                        data: [{{ satisfied_rate }}, {{ unsatisfied_rate }}], // 修改數據為滿意度和不滿意度的比例
+                        data: [{{ Satisfied }}, {{ Unsatisfied }}], // 修改數據為滿意度和不滿意度的比例
                         backgroundColor: [
                           'rgb(75, 192, 192)',
                           'rgb(255, 99, 132)'
@@ -428,8 +428,8 @@
                         '無購買'
                       ],
                       datasets: [{
-                        label: '按摩椅滿意度',
-                        data: [{{ buy_rate }}, {{ not_buy_rate }}], // 修改數據為滿意度和不滿意度的比例
+                        label: '購買率',
+                        data: [{{ Buy }}, {{ Not_Buy }}], // 修改數據為滿意度和不滿意度的比例
                         backgroundColor: [
                           'rgb(75, 192, 192)',
                           'rgb(255, 99, 132)'
@@ -457,16 +457,16 @@
 
               <!-- Default Accordion -->
               <div class="accordion" id="accordionExample">
-              {% for i in chair_list %}
+              {% for i in Chair_List %}
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                      {{ i.name }}試坐次數
+                      {{ i.Name }}試坐次數
                     </button>
                   </h2>
                   <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
                     <div class="accordion-body">
-                      <strong>{{ i.count }}次</strong> 
+                      <strong>{{ i.Experience_Count }}次</strong> 
                     </div>
                   </div>
                 </div>

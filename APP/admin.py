@@ -3,11 +3,10 @@ from .models import *
 
 # Register your models here.
 
-admin.site.register(Branch)
-admin.site.register(Sale)
-admin.site.register(Salesperson)
-admin.site.register(Customer)
-admin.site.register(CustomerProgress)
-admin.site.register(Inventory)
-admin.site.register(Purchases)
-admin.site.register(Public_Massage_chair)
+admin.site.register(BRANCH)
+admin.site.register(PRODUCT_MODEL)
+admin.site.register(PRODUCT)
+admin.site.register(SELLER)
+admin.site.register(CUSTOMER)
+admin.site.register(SALE)
+admin.site.register(PUBLIC_MASSAGE_CHAIR)
