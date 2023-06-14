@@ -228,16 +228,17 @@ def month_up(request):
     sales = SALE.objects.all()
     
     monthly_sales = [0 for _ in range(today.month)]
+    feature_list = []
     
     for month in months_range:
         for sale in sales:
             if sale.Sale_Date.month == month + 1:
                 monthly_sales[month] += sale.Selling_Price
-    
+        feature_list.append([month])
+        
     monthly_sales_2d = [ [i] for i in monthly_sales]
-    feature_list = []
-    for i in months_range:
-        feature_list.append([i + 1])
+    
+        
     
     x, y = np.array(feature_list), np.array(monthly_sales_2d)
     regressor = make_pipeline(PolynomialFeatures(3), LinearRegression())
