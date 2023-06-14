@@ -7,7 +7,7 @@ from django.db.models.functions import ExtractQuarter
 
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.pipeline import make_pipeline
 import random
 
@@ -267,6 +267,7 @@ def month_up(request):
     
     x, y = np.array(feature_list), np.array(monthly_sales_2d)
     regressor = make_pipeline(PolynomialFeatures(1), LinearRegression())
+    # regressor = make_pipeline(PolynomialFeatures(1), LogisticRegression())
     w = regressor.fit(x,y)
     predict = [[i + 1] for i in range(today.month, 12)]
     result = w.predict(predict)
