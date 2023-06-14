@@ -509,7 +509,7 @@
                             colors: '#FEB019',
                           },
                           formatter: function(value) {
-                            return "$" + value + "k";
+                            return "$" + value;
                           }
                         },
                         title: {
@@ -526,7 +526,7 @@
                       y: {
                         formatter: function(val) {
                           if (typeof val === 'number') {
-                            return "$" + val.toFixed(0) + "k";
+                            return "$" + val.toFixed(0);
                           }
                           return val;
                         }

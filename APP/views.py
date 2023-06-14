@@ -209,26 +209,22 @@ def maolee(request):
     cost_dict = {}
     
     for month in months_range:
+        sales_count = 0
         for sale in monthly_sale:
-            sales_count = 0
             if sale.sale_date.month == month:
-                sales_count = sale.inventory.Inventory_unit_price * sale.sale_volume
-                break
+                sales_count += sale.inventory.Inventory_unit_price * sale.sale_volume
         sales_dict[month] = sales_count
         
+        cost_count = 0
         for cost in monthly_sale:
-            cost_count = 0
             if cost.sale_date.month == month:
-                cost_count = sale.inventory.Inventory_cost * sale.sale_volume
-                break
+                cost_count += sale.inventory.Inventory_cost * sale.sale_volume
         cost_dict[month] = cost_count
         
-        
+        profit_count = 0
         for profit in monthly_sale:
-            profit_count = 0
             if profit.sale_date.month == month:
-                profit_count = (sale.inventory.Inventory_unit_price - sale.inventory.Inventory_cost) * sale.sale_volume
-                break
+                profit_count += (sale.inventory.Inventory_unit_price - sale.inventory.Inventory_cost) * sale.sale_volume
         profit_dict[month] = profit_count
         
     return render(request, 'maolee.html', locals())
