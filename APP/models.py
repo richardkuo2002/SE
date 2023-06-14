@@ -92,7 +92,7 @@ class SALE(models.Model):
     ID = models.AutoField(primary_key=True)
     Seller = models.ForeignKey(SELLER, on_delete=models.CASCADE)
     Customer = models.ForeignKey(CUSTOMER, on_delete=models.CASCADE)
-    Product = models.ForeignKey(PRODUCT, on_delete=models.CASCADE)
+    Product = models.ForeignKey(PRODUCT, on_delete=models.CASCADE, unique=True)
     Selling_Price = models.DecimalField(max_digits=10, decimal_places=0)
     Sale_Date = models.DateField(db_index=True)
     Branch = models.ForeignKey(BRANCH, on_delete=models.CASCADE)
@@ -117,7 +117,7 @@ class PUBLIC_MASSAGE_CHAIR(models.Model):
     ), default=1)
     
     def __str__(self):
-        return str(self.ID) + "_" + self.Customer.Name + "_" + self.Seller.Name + "_" + str(self.Date)
+        return str(self.ID) + "_" + self.Customer.Name + "_" + self.Seller.Name + "_" + str(self.Date) + "_" + self.Product.Category.Name
     class Meta:
         verbose_name = "按摩椅體驗"
         verbose_name_plural = "按摩椅體驗"

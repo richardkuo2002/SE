@@ -400,10 +400,9 @@
               <thead>
                 <tr>
                   <th scope="col">季度</th>
-                  <th scope="col">中原分店</th>
-                  <th scope="col">北區</th>
-                  <th scope="col">中區</th>
-                  <th scope="col">南區</th>
+                  {% for q in q_list_2 %}
+                  <th scope="col">{{ q.local }}</th>
+                  {% endfor %}
                 </tr>
               </thead>
               <tbody>

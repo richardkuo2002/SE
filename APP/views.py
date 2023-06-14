@@ -359,7 +359,8 @@ def anmoyee(request):
         for Experience in Experiences:
             Experience_Day = Experience.Date
             Customer = Experience.Customer
-            if SALE.objects.filter(Customer = Customer, Sale_Date = Experience_Day).count() > 0:
+            Product = Experience.Product.Category
+            if SALE.objects.filter(Customer = Customer, Sale_Date = Experience_Day, Product__Category = Product).count() > 0:
                 Buy += 1
             else:
                 Not_Buy += 1
