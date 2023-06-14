@@ -93,25 +93,25 @@ def index(request):
         customer_dict[month] += customer_count
     return render(request, 'index.html', locals())
 
-def business(request):
-    salesperson_sales = SELLER.objects.all()
-    saleperson_dict = {}
-    for sp in salesperson_sales:
-        salesperson_id = sp.salesperson_id
-        sale_ids = CustomerProgress.objects.filter(salesperson_id=salesperson_id).values_list('sale', flat=True)
-        salesperson = Salesperson.objects.get(pk=salesperson_id)
-        profit_total = 0
-        for id in sale_ids:
-            sales = Sale.objects.filter(sale_id = id)
-            for sale in sales:
-                profit_total += sale.inventory.Inventory_unit_price * sale.sale_volume
-        saleperson_dict[salesperson.salesperson_name] = profit_total
-        saleperson_dict = dict(sorted(saleperson_dict.items(), key=lambda x: x[1]))
-    salesperson_list = []
-    for idx, (name, profit) in enumerate(reversed(saleperson_dict.items())):
-        salesperson_list.append({'id': idx + 1, 'name': name, 'profit': profit})
+# def business(request):
+#     salesperson_sales = SELLER.objects.all()
+#     saleperson_dict = {}
+#     for sp in salesperson_sales:
+#         salesperson_id = sp.salesperson_id
+#         sale_ids = CustomerProgress.objects.filter(salesperson_id=salesperson_id).values_list('sale', flat=True)
+#         salesperson = Salesperson.objects.get(pk=salesperson_id)
+#         profit_total = 0
+#         for id in sale_ids:
+#             sales = Sale.objects.filter(sale_id = id)
+#             for sale in sales:
+#                 profit_total += sale.inventory.Inventory_unit_price * sale.sale_volume
+#         saleperson_dict[salesperson.salesperson_name] = profit_total
+#         saleperson_dict = dict(sorted(saleperson_dict.items(), key=lambda x: x[1]))
+#     salesperson_list = []
+#     for idx, (name, profit) in enumerate(reversed(saleperson_dict.items())):
+#         salesperson_list.append({'id': idx + 1, 'name': name, 'profit': profit})
     
-    return render(request, 'business.html', locals())
+#     return render(request, 'business.html', locals())
 
 def customer(request):
     Customers = CUSTOMER.objects.all()
@@ -223,23 +223,26 @@ def manyeedo(request):
     return render(request, 'manyeedo.html', locals())
 
 def month_up(request):
-    now_month = datetime.today().date().month
-    months_range = [ i + 1 for i in range(now_month)]
+    today = date.today()
+    months_range = [ i + 1 for i in range(today.month)]
     sales = SALE.objects.all()
     
-    monthly_sales = [0 for _ in range(now_month)]
-    for sale in sales:
-        for month in months_range:
+    monthly_sales = [0 for _ in range(today.month)]
+    
+    for month in months_range:
+        for sale in sales:
             if sale.Sale_Date.month == month + 1:
                 monthly_sales[month] += sale.Selling_Price
-                break
     
     monthly_sales_2d = [ [i] for i in monthly_sales]
-    months_range = [ [i + 1] for i in range(now_month)]
-    x, y = np.array(months_range), np.array(monthly_sales_2d)
+    feature_list = []
+    for i in months_range:
+        feature_list.append([i + 1])
+    
+    x, y = np.array(feature_list), np.array(monthly_sales_2d)
     regressor = make_pipeline(PolynomialFeatures(3), LinearRegression())
     w = regressor.fit(x,y)
-    predict = [[i + 1] for i in range(now_month, 12)]
+    predict = [[i + 1] for i in range(today.month, 12)]
     result = w.predict(predict)
     return render(request, 'month_up.html', locals())
 

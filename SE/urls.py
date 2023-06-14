@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
     path('index/', index),
-    path('business/', business),
+    # path('business/', business),
     path('customer/', customer),
     path('sale_rank/', sale_rank),
     path('season_rank/', season_rank),
