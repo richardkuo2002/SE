@@ -402,3 +402,11 @@ def anmoyee(request):
         Chair_List.append({"Name": Chair.Category.Name, "Experience_Count": Experience_Count})
     
     return render(request, 'anmoyee.html', locals())
+
+def select1(request):
+    
+    return render(request, 'select1.html', locals())
+
+def select2(request):
+    
+    return render(request, 'select2.html', locals())
