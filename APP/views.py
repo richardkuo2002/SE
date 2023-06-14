@@ -168,7 +168,21 @@ def season_rank(request):
     local_list = ['北區', '中區', '南區']
     q_table = [[0] * 4 for _ in range(4)]
     q_list = []
-    q_list_2 = [{'local': "中原店", 'value': [0, 0, 0, 0]}]
+    q_list_2 = []
+    sales_by_quarter = SALE.objects.filter(Sale_Date__year=current_year, Branch_id = 1).annotate(
+                quarter=ExtractQuarter('Sale_Date')
+            )
+    loacl_total = [0 for _ in range(4)]
+    for i in range(4):
+        sales_amount = 0
+        for entry in sales_by_quarter:
+            if entry.quarter == i + 1:
+                sales_amount = entry.Selling_Price
+                break
+        loacl_total[i] += sales_amount
+        q_table[i][0] += sales_amount
+    q_list_2.append({'local': "中原店", 'value': loacl_total})
+    
     for idx in range(3):
         branches = BRANCH.objects.filter(District = idx + 1)
         loacl_total = [0 for _ in range(4)]
@@ -191,7 +205,6 @@ def season_rank(request):
     return render(request, 'season_rank.html', locals())
 
 def maolee(request):
-    
     current_year = datetime.now().year
     This_Year_Sales = SALE.objects.filter(Sale_Date__year=current_year)
     This_Year_Product = PRODUCT.objects.filter(Purchase_Date__year=current_year)
@@ -225,23 +238,35 @@ def manyeedo(request):
 def month_up(request):
     today = date.today()
     months_range = [ i + 1 for i in range(today.month)]
-    sales = SALE.objects.all()
     
     monthly_sales = [0 for _ in range(today.month)]
     feature_list = []
     
     for month in months_range:
-        for sale in sales:
-            if sale.Sale_Date.month == month + 1:
-                monthly_sales[month] += sale.Selling_Price
+        This_Month_Sales = SALE.objects.filter(Sale_Date__month = month)
+        count = []
+        This_month_Customer_Count = 0
+        
+        for sale in This_Month_Sales:
+            if sale.Sale_Date.month == month:
+                monthly_sales[month - 1] += sale.Selling_Price
+            
+            try:
+                count.index(sale.Customer.ID)
+            except:
+                count.append(sale.Customer.ID)
+                This_month_Customer_Count += 1
+        
         feature_list.append([month])
         
-    monthly_sales_2d = [ [i] for i in monthly_sales]
+            
+        
+    monthly_sales_2d = [[i] for i in monthly_sales]
     
         
     
     x, y = np.array(feature_list), np.array(monthly_sales_2d)
-    regressor = make_pipeline(PolynomialFeatures(3), LinearRegression())
+    regressor = make_pipeline(PolynomialFeatures(1), LinearRegression())
     w = regressor.fit(x,y)
     predict = [[i + 1] for i in range(today.month, 12)]
     result = w.predict(predict)
