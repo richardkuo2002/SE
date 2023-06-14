@@ -194,6 +194,7 @@ def maolee(request):
     
     current_year = datetime.now().year
     This_Year_Sales = SALE.objects.filter(Sale_Date__year=current_year)
+    This_Year_Product = PRODUCT.objects.filter(Purchase_Date__year=current_year)
     months_range = range(1, 13)
     sales_dict = {}
     profit_dict = {}
@@ -206,8 +207,12 @@ def maolee(request):
         for sale in This_Year_Sales:
             if sale.Sale_Date.month == month:
                 This_Month_Sales += sale.Selling_Price
-                This_Month_Cost += sale.Product.Cost
-                This_Month_Profit += sale.Selling_Price - sale.Product.Cost
+                
+        for Purchase in This_Year_Product:
+            if Purchase.Purchase_Date.month == month:
+                This_Month_Cost += Purchase.Cost
+        
+        This_Month_Profit += This_Month_Sales - This_Month_Cost
         sales_dict[month] = This_Month_Sales
         cost_dict[month] = This_Month_Cost
         profit_dict[month] = This_Month_Profit
